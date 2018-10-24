@@ -34,8 +34,8 @@ require('./config/passport')(passport);
 // // Routes
 require('./app/routes.js')(app, passport, express);
 
-app.use('/', express.static(path.join(__dirname + '/views/login-registration/')));
-app.use('/auth', express.static(path.join(__dirname + '/views/authenticated-page/')));
+app.use('/login', express.static(path.join(__dirname + '/views/login-registration/')));
+app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/authenticated-page/')));
 
 // Launch
 app.listen(port, (err, res) => {
@@ -43,3 +43,11 @@ app.listen(port, (err, res) => {
 
 	console.log(`Listening on port: ${port}`)
 });
+
+// Authentication Middleware
+function isLoggedIn (req, res, next) {
+	if(req.isAuthenticated())
+		return next();
+
+	return res.redirect('/')
+}

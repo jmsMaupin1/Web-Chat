@@ -1,17 +1,21 @@
 const path = require('path');
 
 module.exports = (app, passport, express) => {
-	app.use('/', express.static(path.join(__dirname + '/views/login-registration/')));
-	app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/authenticated-page/')));
-
+	
+	app.get('/', (req, res, next) => {
+		if(req.isAuthenticated())
+			return res.redirect('/auth')
+		else
+			return res.redirect('/login')
+	})
 	app.post('/signup', passport.authenticate('local-signup', {
 		successRedirect: '/auth',
-		failureRedirect: '/#toregister'
+		failureRedirect: '/login#toregister'
 	}))
 
 	app.post('/login', passport.authenticate('local-login', {
 		successRedirect: '/auth',
-		failureRedirect: '/'
+		failureRedirect: '/login'
 	}))
 }
 
