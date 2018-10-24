@@ -9,6 +9,7 @@ const session      = require('express-session');
 // Import the rest of the tools
 const mongoose     = require('mongoose');
 const passport     = require('passport');
+const socket       = require('socket.io');	
 const path         = require('path');
 
 // Get Configurations
@@ -37,12 +38,14 @@ require('./app/routes.js')(app, passport, express);
 app.use('/login', express.static(path.join(__dirname + '/views/login-registration/')));
 app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/authenticated-page/')));
 
-// Launch
-app.listen(port, (err, res) => {
+// Launch and set up socket.io
+let io = socket(app.listen(port, (err, res) => {
 	if(err) throw err;
 
 	console.log(`Listening on port: ${port}`)
-});
+}));
+
+// 
 
 // Authentication Middleware
 function isLoggedIn (req, res, next) {
