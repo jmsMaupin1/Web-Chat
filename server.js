@@ -33,19 +33,19 @@ mongoose.connect(configDB.url);
 require('./config/passport')(passport);
 
 // // Routes
-require('./app/routes.js')(app, passport, express);
-
+require('./app/routes.js')(app, passport);
 app.use('/login', express.static(path.join(__dirname + '/views/login-registration/')));
-app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/authenticated-page/')));
+app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/chat/')));
 
 // Launch and set up socket.io
-let io = socket(app.listen(port, (err, res) => {
+let server = app.listen(port, (err, res) => {
 	if(err) throw err;
 
 	console.log(`Listening on port: ${port}`)
-}));
+});
 
-// 
+require('./app/event-handler.js')(server);
+
 
 // Authentication Middleware
 function isLoggedIn (req, res, next) {
