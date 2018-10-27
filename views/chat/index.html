@@ -16,6 +16,7 @@
 			<div class="navigation">
 				<a href="#" id="private">Private</a>
 				<a href="#" id="rooms">Rooms</a>
+				<a href="#" id="people">People</a>
 			</div>
 			<div class="side-content">
 				<div class="detail">
@@ -25,10 +26,12 @@
 			</div>
 		</div>
 		<div class="chat">
-			<div class="chat-window"></div>
-			<textarea class="input"></textarea>
+			<div class="chat-window" id="feedback">
+			</div>
+			<textarea class="input" id="message" onkeypress="messageKeyPress(event, this)"></textarea>
 		</div>
 	</div>
+
 	<script type="text/javascript" src="./chat.js"></script>
 </body>
 </html>
