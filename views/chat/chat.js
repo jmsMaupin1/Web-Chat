@@ -6,9 +6,70 @@ const message  = document.getElementById('message'),
 	  feedback = document.getElementById('feedback');
 
 
-var handle = '';
-var lastHandle = '';
-var lastMessageId = '';
+let handle = '';
+let lastHandle = '';
+let lastMessageId = '';
+let users = [];
+
+// helper functions
+let addNewMessage = function(myMessage, data) {
+	lastMessageId = data._id;
+	lastHandle    = data.handle;
+	let newMessage = `
+		<div class="${myMessage ? "my-message" : "other-message"}">
+			<div class="content" id=${data._id}>
+				<div class="message">
+					<p>${data.message}</p>
+				</div>
+				<div class="username"><strong>${data.handle}</strong></div>
+			</div>
+		</div>
+	`;
+
+	feedback.innerHTML += newMessage;
+}
+
+let insertAfter = function(ref, newEl) {
+	ref.insertAdjacentElement('beforeend', newEl)
+}
+
+let addMessage = function(lastId, message) {
+	let lastMessage = document.getElementById(lastMessageId);
+
+	// Create our new message
+	let newMessage = document.createElement('p');
+	newMessage.innerHTML = message;
+
+	// Insert message
+	insertAfter(lastMessage.childNodes[1], newMessage);
+}
+
+let populateUserlist = function() {
+	let sidebar = document.getElementById('sidebar-list');
+	let userPanel = (user) => {
+		let panel = document.createElement('div');
+		panel.className = 'detail';
+		panel.innerHTML = `
+			<a href="#">
+				<h3>${user.handle}</h3>
+			</a>
+			`;
+
+		panel.addEventListener('click', () => {
+			socket.emit('private_conversation', {
+				id: user.id
+			})
+		});
+
+		return panel;
+	}
+
+	sidebar.innerHTML = '';
+
+	users.forEach((user) => {
+		insertAfter(sidebar, userPanel(user));
+	})
+}
 
 // Get profile information
 $.ajax({
@@ -17,11 +78,12 @@ $.ajax({
 	dataType: 'json',
 	success: (res) => {
 		handle = res;
+		socket.emit('connect_user', handle);
 	}
 });
 
 // Event Listeners
-var messageKeyPress = function(e) {
+let messageKeyPress = function(e) {
 	let key = e.keyCode ? e.keyCode : e.which;
 
 	if(key == 13 && !e.shiftKey){
@@ -39,47 +101,7 @@ var messageKeyPress = function(e) {
 	}
 }
 
-// helper functions
-var addNewMessage = function(myMessage, data) {
-	lastMessageId = data._id;
-	lastHandle    = data.handle;
-	let newMessage = `
-		<div class="${myMessage ? "my-message" : "other-message"}">
-			<div class="content" id=${data._id}>
-				<div class="message">
-					<p>${data.message}</p>
-				</div>
-				<div class="username"><strong>${data.handle}</strong></div>
-			</div>
-		</div>
-	`;
 
-	feedback.innerHTML += newMessage;
-}
-
-var insertAfter = function(ref, newEl) {
-	ref.insertAdjacentElement('beforeend', newEl)
-}
-
-var updateElement = function(ref, data) {
-
-}
-
-var addMessage = function(lastId, message) {
-	let lastMessage = document.getElementById(lastMessageId);
-
-	// Create our new message
-	let newMessage = document.createElement('p');
-	newMessage.innerHTML = message;
-
-	// Insert message
-	insertAfter(lastMessage.childNodes[1], newMessage);
-	// Update new time
-}
-
-var formatDate = function(date, military) {
-
-}
 
 // Listen for socket events
 socket.on('chat', data => {
@@ -89,6 +111,14 @@ socket.on('chat', data => {
 	else
 		addNewMessage(data.handle === handle, data);
 });
+
+socket.on('users', data => {
+	users = data.filter((user) => {
+		return user.handle !== handle;
+	});
+
+	populateUserlist(users);
+})
 
 socket.on('initial_chats', data => {
 	data.forEach( (message) => {
