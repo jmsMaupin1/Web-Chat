@@ -7,17 +7,19 @@ module.exports = (app) => {
 	io.on('connection', (socket) => {
 		Message.find( (err, messages) => {
 			if(err) throw err;
-			io.sockets.emit('initial_chats', messages);
+			io.to(socket.id).emit('initial_chats', messages);
+			// io.sockets.emit('initial_chats', messages);
 		})
 
 		socket.on('chat', (data) => {
 			new Message({
 				created: Date.now(),
-				content: data.message,
-				author : data.handle
-			}).save((err) => {if (err) throw err});
-
-			io.sockets.emit('chat', data);
+				message: data.message,
+				handle : data.handle
+			}).save((err, data) => {
+				if (err) throw err;
+				io.sockets.emit('chat', data);
+			});
 		})
 	})
 }

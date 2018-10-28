@@ -1,4 +1,3 @@
-// Import express and dependencies
 // Import express and middleware dependencies 
 const express      = require('express');
 const morgan       = require('morgan');

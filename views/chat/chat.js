@@ -1,3 +1,4 @@
+// Connect to server socket
 const socket = io.connect('http://localhost:8080');
 
 // Query DOM
@@ -6,6 +7,9 @@ const message  = document.getElementById('message'),
 
 
 var handle = '';
+var lastHandle = '';
+var lastMessageId = '';
+
 // Get profile information
 $.ajax({
 	url:'http://localhost:8080/user_info',
@@ -35,47 +39,66 @@ var messageKeyPress = function(e) {
 	}
 }
 
+// helper functions
+var addNewMessage = function(myMessage, data) {
+	lastMessageId = data._id;
+	lastHandle    = data.handle;
+	let newMessage = `
+		<div class="${myMessage ? "my-message" : "other-message"}">
+			<div class="content" id=${data._id}>
+				<div class="message">
+					<p>${data.message}</p>
+				</div>
+				<div class="username"><strong>${data.handle}</strong></div>
+			</div>
+		</div>
+	`;
+
+	feedback.innerHTML += newMessage;
+}
+
+var insertAfter = function(ref, newEl) {
+	ref.insertAdjacentElement('beforeend', newEl)
+}
+
+var updateElement = function(ref, data) {
+
+}
+
+var addMessage = function(lastId, message) {
+	let lastMessage = document.getElementById(lastMessageId);
+
+	// Create our new message
+	let newMessage = document.createElement('p');
+	newMessage.innerHTML = message;
+
+	// Insert message
+	insertAfter(lastMessage.childNodes[1], newMessage);
+	// Update new time
+}
+
+var formatDate = function(date, military) {
+
+}
+
 // Listen for socket events
 socket.on('chat', data => {
-	if(data.handle === handle) 
-		feedback.innerHTML += `
-			<div class="my-message">
-				<div class="content">
-					<div class="message">${data.message}</div>
-					<div class="username"><strong>${data.handle}</strong></div>
-				</div>
-			</div>
-		`;
+	console.log(new Date(data.created).getHours());
+	if(data.handle === lastHandle && lastMessageId !== "")
+		addMessage(lastMessageId, data.message);
 	else
-		feedback.innerHTML += `
-			<div class="other-message">
-				<div class="content">
-					<div class="message">${data.message}</div>
-					<div class="username"><strong>${data.handle}</strong></div>
-				</div>
-			</div>
-		`; 
+		addNewMessage(data.handle === handle, data);
 });
 
 socket.on('initial_chats', data => {
 	data.forEach( (message) => {
-		if(message.author == handle)
-			feedback.innerHTML += `
-				<div class="my-message">
-					<div class="content">
-						<div class="message">${message.content}</div>
-						<div class="username"><strong>${message.author}</strong></div>
-					</div>
-				</div>
-			`;
-		else
-			feedback.innerHTML += `
-				<div class="other-message">
-					<div class="content">
-						<div class="message">${message.content}</div>
-						<div class="username"><strong>${message.author}</strong></div>
-					</div>
-				</div>
-			`;
+		if(lastHandle === "") {
+			addNewMessage(message.handle === handle, message)
+		} else {
+			if(message.handle === lastHandle)
+				addMessage(lastMessageId, message.message);
+			else
+				addNewMessage(message.handle === handle, message);
+		}
 	})
 });
