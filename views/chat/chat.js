@@ -1,36 +1,39 @@
 // Connect to server socket
-const socket = io.connect('http://localhost:8080');
+const socket        = io.connect('http://localhost:8080');
 
 // Query DOM
-const message  = document.getElementById('message'),
-	  feedback = document.getElementById('feedback');
+const message       = document.getElementById('message'),
+	  feedback      = document.getElementById('feedback');
 
 
-let handle = '';
-let lastHandle = '';
-let lastMessageId = '';
-let users = [];
+let handle          = '';
+let user            = {};
+let room            = {};
+let lastHandle      = '';
+let lastMessageId   = '';
+let connected_users = [];
 
 // helper functions
+let insertAfter = function(ref, newEl) {
+	ref.insertAdjacentElement('beforeend', newEl)
+}
+
 let addNewMessage = function(myMessage, data) {
-	lastMessageId = data._id;
-	lastHandle    = data.handle;
+	lastMessageId = data.user._id;
+	lastHandle    = data.user.username;
+
 	let newMessage = `
 		<div class="${myMessage ? "my-message" : "other-message"}">
-			<div class="content" id=${data._id}>
+			<div class="content" id=${data.user._id}>
 				<div class="message">
 					<p>${data.message}</p>
 				</div>
-				<div class="username"><strong>${data.handle}</strong></div>
+				<div class="username"><strong>${data.user.username}</strong></div>
 			</div>
 		</div>
 	`;
 
 	feedback.innerHTML += newMessage;
-}
-
-let insertAfter = function(ref, newEl) {
-	ref.insertAdjacentElement('beforeend', newEl)
 }
 
 let addMessage = function(lastId, message) {
@@ -46,18 +49,21 @@ let addMessage = function(lastId, message) {
 
 let populateUserlist = function() {
 	let sidebar = document.getElementById('sidebar-list');
+
 	let userPanel = (user) => {
 		let panel = document.createElement('div');
 		panel.className = 'detail';
 		panel.innerHTML = `
 			<a href="#">
-				<h3>${user.handle}</h3>
+				<h3>${user.username}</h3>
 			</a>
 		`;
 
 		panel.addEventListener('click', () => {
+
 			socket.emit('private_conversation', {
-				id: user.id
+				id: user.id,
+				username: user.handle
 			})
 		});
 
@@ -66,7 +72,7 @@ let populateUserlist = function() {
 
 	sidebar.innerHTML = '';
 
-	users.forEach((user) => {
+	connected_users.forEach((user) => {
 		insertAfter(sidebar, userPanel(user));
 	})
 }
@@ -77,8 +83,9 @@ $.ajax({
 	type: 'GET',
 	dataType: 'json',
 	success: (res) => {
-		handle = res;
-		socket.emit('connect_user', handle);
+		handle = res.username;
+		user   = res;
+		socket.emit('connect_user', res);
 	}
 });
 
@@ -88,8 +95,9 @@ let messageKeyPress = function(e) {
 
 	if(key == 13 && !e.shiftKey){ // enter = 13
 		socket.emit('chat', {
+			room   : room,
 			message: message.value,
-			handle: handle
+			user   : user
 		})
 
 		message.value = '';
@@ -103,20 +111,23 @@ let messageKeyPress = function(e) {
 
 
 // Listen for socket events
+socket.on('room_joined', data => {
+	room = data;
+});
+
 socket.on('chat', data => {
-	console.log(new Date(data.created).getHours());
-	if(data.handle === lastHandle && lastMessageId !== "")
+	if(data.user.username === lastHandle && lastMessageId !== "")
 		addMessage(lastMessageId, data.message);
 	else
-		addNewMessage(data.handle === handle, data);
+		addNewMessage(data.user.username === user.username, data);
 });
 
 socket.on('users', data => {
-	users = data.filter((user) => {
-		return user.handle !== handle;
+	connected_users = data.filter((user) => {
+		return user.username !== handle;
 	});
 
-	populateUserlist(users);
+	populateUserlist(connected_users);
 })
 
 socket.on('initial_chats', data => {

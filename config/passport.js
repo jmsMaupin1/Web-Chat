@@ -25,11 +25,8 @@ module.exports = (passport) => {
 
 				// User already exists
 				if (user) {
-					console.log('user already exists');
 					return done(null, false);
 				}
-
-				console.log(req.body);
 
 				// Otherwise create and store a new user - complete registration
 				const newUser = new User();
