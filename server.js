@@ -43,6 +43,7 @@ let server = app.listen(port, (err, res) => {
 	console.log(`Listening on port: ${port}`)
 });
 
+// Event Handler
 require('./app/event-handler.js')(server);
 
 
