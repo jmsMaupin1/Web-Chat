@@ -31,7 +31,7 @@ app.use(passport.session()); // persistent login sessions
 mongoose.connect(configDB.url);
 require('./config/passport')(passport);
 
-// // Routes
+// Routes
 require('./app/routes.js')(app, passport);
 app.use('/login', express.static(path.join(__dirname + '/views/login-registration/')));
 app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/chat/')));

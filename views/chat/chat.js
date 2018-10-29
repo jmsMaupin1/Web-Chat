@@ -36,7 +36,7 @@ let insertAfter = function(ref, newEl) {
 let addMessage = function(lastId, message) {
 	let lastMessage = document.getElementById(lastMessageId);
 
-	// Create our new message
+	// Create new message
 	let newMessage = document.createElement('p');
 	newMessage.innerHTML = message;
 
@@ -86,7 +86,7 @@ $.ajax({
 let messageKeyPress = function(e) {
 	let key = e.keyCode ? e.keyCode : e.which;
 
-	if(key == 13 && !e.shiftKey){
+	if(key == 13 && !e.shiftKey){ // enter = 13
 		socket.emit('chat', {
 			message: message.value,
 			handle: handle
