@@ -40,7 +40,7 @@ module.exports = (app) => {
 
 		socket.on('disconnect', () => {
 			connectedUsers.forEach((user, index) => {
-				if(user.id === socket.id) 
+				if(user.id === socket.id)
 					connectedUsers.splice(index, 1);
 
 				io.sockets.emit('users', connectedUsers);

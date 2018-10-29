@@ -1,4 +1,4 @@
-// Import express and middleware dependencies 
+// Import express and middleware dependencies
 const express      = require('express');
 const morgan       = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -8,13 +8,13 @@ const session      = require('express-session');
 // Import the rest of the tools
 const mongoose     = require('mongoose');
 const passport     = require('passport');
-const socket       = require('socket.io');	
+const socket       = require('socket.io');
 const path         = require('path');
 
 // Get Configurations
 const configDB     = require('./config/database');
 
-// Set up express 
+// Set up express
 const app          = express();
 const port         = process.env.PORT || 8080;
 
@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(bodyParser());
 
 // Required for passport
-app.use(session({ secret: 'not-really-the-secret'})); // session secret
+app.use(session({secret: 'not-really-the-secret'})); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
@@ -31,7 +31,7 @@ app.use(passport.session()); // persistent login sessions
 mongoose.connect(configDB.url);
 require('./config/passport')(passport);
 
-// // Routes
+// Routes
 require('./app/routes.js')(app, passport);
 app.use('/login', express.static(path.join(__dirname + '/views/login-registration/')));
 app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/chat/')));

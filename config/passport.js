@@ -60,7 +60,7 @@ module.exports = (passport) => {
 			if (!user) return done(null, false);
 
 			// Password is invalid
-			if(!user.validPassword(password))
+			if (!user.validPassword(password))
 				return done(null, false);
 
 			// Login Authentication successfull

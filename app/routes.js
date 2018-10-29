@@ -1,5 +1,5 @@
 module.exports = (app, passport) => {
-	
+
 	app.get('/', (req, res) => {
 		if(req.isAuthenticated())
 			return res.redirect('/auth')
@@ -26,7 +26,7 @@ module.exports = (app, passport) => {
 }
 
 // Authentication Middleware
-function isLoggedIn (req, res, next) {
+function isLoggedIn(req, res, next) {
 	if(req.isAuthenticated())
 		return next();
 
