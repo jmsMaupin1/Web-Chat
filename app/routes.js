@@ -26,7 +26,7 @@ module.exports = (app, passport) => {
 }
 
 // Authentication Middleware
-function isLoggedIn (req, res, next) {
+function isLoggedIn(req, res, next) {
 	if(req.isAuthenticated())
 		return next();
 

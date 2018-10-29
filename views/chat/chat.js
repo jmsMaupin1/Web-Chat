@@ -53,7 +53,7 @@ let populateUserlist = function() {
 			<a href="#">
 				<h3>${user.handle}</h3>
 			</a>
-			`;
+		`;
 
 		panel.addEventListener('click', () => {
 			socket.emit('private_conversation', {
@@ -100,7 +100,6 @@ let messageKeyPress = function(e) {
 		});
 	}
 }
-
 
 
 // Listen for socket events

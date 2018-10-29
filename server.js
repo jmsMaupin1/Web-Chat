@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(bodyParser());
 
 // Required for passport
-app.use(session({ secret: 'not-really-the-secret'})); // session secret
+app.use(session({secret: 'not-really-the-secret'})); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
