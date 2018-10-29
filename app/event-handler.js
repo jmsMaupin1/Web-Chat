@@ -1,6 +1,6 @@
-const socket = require('socket.io');
+const socket  = require('socket.io');
 const Message = require('./models/message');
-const Room = require('./models/room');
+const Room    = require('./models/room');
 
 const connectedUsers = [];
 

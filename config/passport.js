@@ -1,5 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('../app/models/user');
+const User          = require('../app/models/user');
 
 module.exports = (passport) => {
 	// Required passport methods
@@ -15,8 +15,8 @@ module.exports = (passport) => {
 
 	// Local Sign up
 	passport.use('local-signup', new LocalStrategy({
-		usernameField: 'email',
-		passwordField: 'password',
+		usernameField    : 'email',
+		passwordField    : 'password',
 		passReqToCallback: true
 	}, (req, email, password, done) => {
 		process.nextTick( () => {
@@ -46,8 +46,8 @@ module.exports = (passport) => {
 	}));
 
 	passport.use('local-login', new LocalStrategy({
-		usernameField: 'email',
-		passwordField: 'password',
+		usernameField    : 'email',
+		passwordField    : 'password',
 		passReqToCallback: true
 	}, (req, email, password, done) => {
 		User.findOne( {'local.email' : email }, (err, user) => {
