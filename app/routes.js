@@ -1,5 +1,5 @@
 module.exports = (app, passport) => {
-	
+
 	app.get('/', (req, res) => {
 		if(req.isAuthenticated())
 			return res.redirect('/auth')
