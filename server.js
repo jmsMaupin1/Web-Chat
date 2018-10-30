@@ -38,9 +38,9 @@ app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/chat/'
 
 // Launch and set up socket.io
 let server = app.listen(port, (err, res) => {
-	if(err) throw err;
+    if (err) throw err;
 
-	console.log(`Listening on port: ${port}`)
+    console.log(`Listening on port: ${port}`)
 });
 
 // Event Handler
@@ -49,8 +49,8 @@ require('./app/event-handler.js')(server);
 
 // Authentication Middleware
 function isLoggedIn (req, res, next) {
-	if(req.isAuthenticated())
-		return next();
+    if (req.isAuthenticated())
+        return next();
 
-	return res.redirect('/')
+    return res.redirect('/')
 }
