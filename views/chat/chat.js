@@ -4,14 +4,16 @@ const socket        = io.connect('http://localhost:8080');
 // Query DOM
 const message       = document.getElementById('message'),
       feedback      = document.getElementById('feedback');
+      rooms         = document.getElementById('rooms');
 
 
 let handle          = '';
 let me              = {};
 let room            = {};
+let roomList        = [];
 let lastHandle      = '';
 let lastMessageId   = '';
-let connected_users = [];
+let connectedUsers = [];
 
 // helper functions
 let insertAfter = function(ref, newEl) {
@@ -58,33 +60,49 @@ let postMessage = function(message) {
         addNewMessage(message)
 }
 
-let populateUserlist = function() {
+let populateSidebarList = function(template, data) {
     let sidebar = document.getElementById('sidebar-list');
-
-    let userPanel = (user) => {
-        let panel = document.createElement('div');
-        panel.className = 'detail';
-        panel.innerHTML = `
-            <a href="#">
-                <h3>${user.username}</h3>
-            </a>
-        `;
-
-        panel.addEventListener('click', () => {
-            socket.emit('private_room', {
-                to: user,
-                from: me
-            })
-        });
-
-        return panel;
-    }
 
     sidebar.innerHTML = '';
 
-    connected_users.forEach((user) => {
-        insertAfter(sidebar, userPanel(user));
+    data.forEach( (d) => {
+        insertAfter(sidebar, template(d));
     })
+}
+
+let userTemplate = function(data) {
+    let panel = document.createElement('div');
+    panel.className = 'detail';
+    panel.innerHTML = `
+        <a href="#">
+            <h3>${data.username}</h3>
+        </a>
+    `;
+
+    panel.addEventListener('click', () => {
+        socket.emit('private_room', {
+            to: data,
+            from: me
+        });
+    })
+
+    return panel;
+}
+
+let roomTemplate = function(data) {
+    let panel = document.createElement('div');
+    panel.className = 'detail';
+    panel.innerHTML = `
+        <a href="#">
+            <h3>${data.name}</h3>
+        </a>
+    `;
+
+    panel.addEventListener('click', () => {
+        socket.emit('get_messages', room);
+    })
+
+    return panel;
 }
 
 // Get profile information
@@ -119,6 +137,10 @@ let messageKeyPress = function(e) {
     }
 }
 
+rooms.addEventListener('click', () => {
+    socket.emit('get_rooms', me._id);
+})
+
 
 // Listen for socket events
 socket.on('room_joined', data => {
@@ -126,7 +148,13 @@ socket.on('room_joined', data => {
     socket.emit("get_messages", room);
 });
 
+socket.on('room_list', data => {
+    populateSidebarList(roomTemplate, data);
+})
+
 socket.on('chat_history', data => {
+    feedback.innerHTML = '';
+
     data.messages.forEach((message) => {
         postMessage(message);
     });
@@ -134,16 +162,13 @@ socket.on('chat_history', data => {
 
 socket.on('chat', data => {
     postMessage(data);
-    // if (data.user.username === lastHandle && lastMessageId !== "")
-    //  addMessage(lastMessageId, data.message);
-    // else
-    //  addNewMessage(data.user.username === me.username, data);
 });
 
 socket.on('users', data => {
-    connected_users = data.filter((user) => {
+    connectedUsers = data.filter((user) => {
         return user.username !== handle;
     });
 
-    populateUserlist(connected_users);
+    populateSidebarList(userTemplate, connectedUsers);
+    // populateUserlist(connectedUsers);
 })
