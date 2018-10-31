@@ -11,10 +11,7 @@ const messageSchema = new Schema({
 messageSchema.statics.getMessagesInRoom = function(roomId, cb) {
     this.find({room: roomId})
         .populate('user', 'local.username')
-        .exec((err, messages) => {
-            if (err) cb(err);
-            else cb(null, messages)
-        })
+        .exec(cb);
 }
 
 module.exports = mongoose.model('message', messageSchema);

@@ -5,6 +5,7 @@ const socket        = io.connect('http://localhost:8080');
 const message       = document.getElementById('message'),
       feedback      = document.getElementById('feedback');
       rooms         = document.getElementById('rooms');
+      people        = document.getElementById('people');
 
 
 let handle          = '';
@@ -141,6 +142,10 @@ rooms.addEventListener('click', () => {
     socket.emit('get_rooms', me._id);
 })
 
+people.addEventListener('click', () => {
+    populateSidebarList(userTemplate, connectedUsers.filter( user => user._id !== me._id));
+})
+
 
 // Listen for socket events
 socket.on('room_joined', data => {
@@ -165,9 +170,6 @@ socket.on('chat', data => {
 });
 
 socket.on('users', data => {
-    connectedUsers = data.filter( user => {
-        return user.username !== handle;
-    });
-
-    populateSidebarList(userTemplate, connectedUsers);
+    connectedUsers = data;
+    populateSidebarList(userTemplate, connectedUsers.filter( user => user._id !== me._id));
 })
