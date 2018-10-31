@@ -13,7 +13,7 @@ let room            = {};
 let roomList        = [];
 let lastHandle      = '';
 let lastMessageId   = '';
-let connectedUsers = [];
+let connectedUsers  = [];
 
 // helper functions
 let insertAfter = function(ref, newEl) {
@@ -65,7 +65,7 @@ let populateSidebarList = function(template, data) {
 
     sidebar.innerHTML = '';
 
-    data.forEach( (d) => {
+    data.forEach( d => {
         insertAfter(sidebar, template(d));
     })
 }
@@ -110,7 +110,7 @@ $.ajax({
     url:'http://localhost:8080/user_info',
     type: 'GET',
     dataType: 'json',
-    success: (res) => {
+    success: res => {
         handle = res.username;
         me     = res;
         socket.emit('connect_user', res);
@@ -155,7 +155,7 @@ socket.on('room_list', data => {
 socket.on('chat_history', data => {
     feedback.innerHTML = '';
 
-    data.messages.forEach((message) => {
+    data.messages.forEach( message => {
         postMessage(message);
     });
 })
@@ -165,10 +165,9 @@ socket.on('chat', data => {
 });
 
 socket.on('users', data => {
-    connectedUsers = data.filter((user) => {
+    connectedUsers = data.filter( user => {
         return user.username !== handle;
     });
 
     populateSidebarList(userTemplate, connectedUsers);
-    // populateUserlist(connectedUsers);
 })
