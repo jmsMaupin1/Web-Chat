@@ -14,7 +14,7 @@ let room            = {};
 let roomList        = [];
 let lastHandle      = '';
 let lastMessageId   = '';
-let connectedUsers  = [];
+let connectedUsers  = {};
 
 // helper functions
 let insertAfter = function(ref, newEl) {
@@ -42,7 +42,7 @@ let addNewMessage = function(data) {
 }
 
 let addMessage = function(lastId, message) {
-    let lastMessage = document.getElementById(lastMessageId);
+    let lastMessage = document.getElementById(lastId);
 
     // Create new message
     let newMessage = document.createElement('p');
@@ -55,9 +55,10 @@ let addMessage = function(lastId, message) {
 let postMessage = function(message) {
     if (lastHandle === '')
         addNewMessage(message)
-    else if (message.user.local.username === lastHandle && lastMessageId !== "")
+    else if (message.user.local.username === lastHandle && lastMessageId) {
         addMessage(lastMessageId, message.message);
-    else
+    }
+    else 
         addNewMessage(message)
 }
 
@@ -76,11 +77,15 @@ let userTemplate = function(data) {
     panel.className = 'detail';
     panel.innerHTML = `
         <a href="#">
-            <h3>${data.username}</h3>
+            <h3>${data.local.username}</h3>
         </a>
     `;
 
     panel.addEventListener('click', () => {
+        console.log({
+            to: data,
+            from: me
+        })
         socket.emit('private_room', {
             to: data,
             from: me
@@ -100,7 +105,8 @@ let roomTemplate = function(data) {
     `;
 
     panel.addEventListener('click', () => {
-        socket.emit('get_messages', room);
+        room = data;
+        socket.emit('get_messages', data);
     })
 
     return panel;
@@ -143,14 +149,18 @@ rooms.addEventListener('click', () => {
 })
 
 people.addEventListener('click', () => {
-    populateSidebarList(userTemplate, connectedUsers.filter( user => user._id !== me._id));
+    populateSidebarList(userTemplate, 
+        connectedUsers[room._id].participants.filter( user => {
+            return user._id !== me._id;
+        })
+    );
 })
 
 
 // Listen for socket events
 socket.on('room_joined', data => {
     room = data;
-    socket.emit("get_messages", room);
+    socket.emit("get_messages", data);
 });
 
 socket.on('room_list', data => {
@@ -159,6 +169,8 @@ socket.on('room_list', data => {
 
 socket.on('chat_history', data => {
     feedback.innerHTML = '';
+    lastHandle         = '';
+    lastMessageId      = '';
 
     data.messages.forEach( message => {
         postMessage(message);
@@ -170,6 +182,11 @@ socket.on('chat', data => {
 });
 
 socket.on('users', data => {
-    connectedUsers = data;
-    populateSidebarList(userTemplate, connectedUsers.filter( user => user._id !== me._id));
+    connectedUsers[data._id] = data;
+
+    populateSidebarList(userTemplate, 
+        connectedUsers[room._id].participants.filter( user => {
+            return user._id !== me._id;
+        })
+    );
 })

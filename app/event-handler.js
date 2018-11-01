@@ -5,13 +5,17 @@ const Room    = require('./models/room');
 const connectedUsers = [];
 
 // Helper functions
-let joinroom = function(roomName, data, io) {
+let joinroom = function(roomId, data, io) {
     // need to add this data to the database
     // add online prop to users
     // add socket.id to users
     // add update function to update users (for updating socket.id initially)
-    connectedUsers.push(data);
-    Room.join(roomName, data._id, (err, room) => {
+
+    // connectedUsers.push(data);
+    if (connectedUsers.filter( user => user._id === data._id).length === 0)
+        connectedUsers.push(data);
+
+    Room.join(roomId, data, (err, room) => {
         if (err) throw err;
 
         io.to(data.socket_id).emit('room_joined', room);
@@ -20,7 +24,7 @@ let joinroom = function(roomName, data, io) {
         room.participants.forEach( (p) => {
             connectedUsers.forEach( user => {
                 if(p._id.toString() === user._id.toString()) {
-                    io.to(user.socket_id).emit('users', connectedUsers);
+                    io.to(user.socket_id).emit('users', room);
                 }
             })
         })
@@ -35,9 +39,17 @@ module.exports = app => {
         socket.on('connect_user', data => {
             data.socket_id = socket.id;
 
-            joinroom("General", data, io);
+            Room.createRoom('General', (err, room) => {
+                if (err) throw err;
 
-            // io.sockets.emit('users', connectedUsers);
+                joinroom(room._id, data, io);
+            })
+
+            Room.createRoom('General 2', (err, room) => {
+                if (err) throw err;
+
+                joinroom(room._id, data, io);
+            })
         })
 
         socket.on('disconnect', data => {
@@ -68,18 +80,6 @@ module.exports = app => {
                 })
             });
         });
-
-        socket.on('private_room', data => {
-            let roomName = data.to.username + ' and ' + data.from.username;
-
-            Room.join(roomName, data.from.username, (err, room) => {
-                io.to(socket.id).emit('room_joined', room);
-            })
-
-            Room.join(roomName, data.to.username, (err, room) => {
-                io.to(data.to.socket_id).emit('room_joined', room);
-            })
-        })
 
         socket.on('get_rooms', data => {
             Room.getByParticipants(data, (err, rooms) => {

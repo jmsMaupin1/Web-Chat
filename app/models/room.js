@@ -6,72 +6,75 @@ const RoomSchema = new Schema({
     participants: [{type: Schema.Types.ObjectId, ref: 'User'}]
 })
 
-RoomSchema.statics.join = function(roomName, userId, cb) {
-    if (!userId) {
-        cb('userId is null');
+RoomSchema.statics.createRoom = function(roomName, cb) {
+    if (roomName === 'General' || roomName === 'General 2') {
+        this.find({name: roomName})
+            .populate('participants', 'local.username')
+            .limit(1)
+            .exec( (err, room) => {
+                if (err) cb(err);
+                else if (room[0]) cb(err, room[0]);
+                else {
+                    let newRoom = new this();
+                    newRoom.name = roomName;
+                    newRoom.save(cb);
+                }
+            })
+    } else {
+        let newRoom = new this();
+        newRoom.name = roomName;
+        newRoom.save(cb);
+    }
+}
+
+RoomSchema.statics.getRoom = function(roomId, cb) {
+    this.find({_id: roomId})
+        .populate('participants', 'local.username')
+        .limit(1)
+        .exec( (err, room) => cb(err, room[0]));
+}
+
+RoomSchema.statics.join = function(roomId, user, cb) {
+    if (!user) {
+        cb('user is null');
         return;
     }
 
-    this.find({name: roomName})
+    this.find({_id: roomId})
         .populate('participants', 'local.username')
         .limit(1)
         .exec( (err, rooms) => {
             if (err) cb(err);
-            if (rooms.length > 0) {
-                let room = rooms[0]
-                let notMe = room.participants.filter( user => user._id.toString() === userId );
+            else if (rooms.length > 0) {
+                let room = rooms[0];
+                let me = room.participants.filter( p => p._id.toString() === user._id );
 
-                if (notMe.length === 0) {
-                    room.participants.push(userId);
-                    room.save(cb);
+                if (me.length === 0) {
+                    room.participants.push(user._id);
+                    room.save( (err, room) => {
+                        if (err) { 
+                            cb(err);
+                            return;
+                        }
+
+                        this.populate(room, {path: 'participants', model: 'User'}, (err, room) => {
+                            room.participants.forEach( (p, index) => {
+                                room.participants[index].local = {
+                                    username: p.local.username
+                                }
+                            })
+
+                            cb(err, room);
+                        });
+                    });
                 } else {
                     cb(null, room);
                 }
             } else {
-                const newRoom = new this();
-                newRoom.name = roomName;
-                newRoom.participants = [userId];
-
-                newRoom.save(cb);
+                cb('No Room Found');
             }
         })
 }
-
-// RoomSchema.statics.join = function(roomName, userId, cb) {
-//     this.findOne({name: roomName}, (err, room) => {
-//         if (err) cb(err);
-//         if (!userId) {
-//             cb('userId is null');
-//             return;
-//         }
-//         if (room) {
-//             let participantsNotMe = room.participants.filter( user => {
-//                 return user.toString() === userId;
-//             })
-
-//             if (participantsNotMe.length === 0)
-//                 room.participants.push(userId);
-
-//             room.save((err, room) => {
-//                 if (err) cb(err);
-//                 else cb(null, room);
-//             });
-
-//             return;
-//         }
-        
-
-//         const newRoom = new this();
-//         newRoom.name = roomName;
-//         newRoom.participants = [userId];
-
-//         newRoom.save((err, room) => {
-//             if (err) cb(err);
-//             else cb(null, room);
-//         });
-
-//     })
-// }
 
 RoomSchema.statics.getByParticipants = function(participants, cb) {
     this.find({"participants" : {"$in" : participants}})
@@ -88,8 +91,8 @@ RoomSchema.statics.getParticipants = function(roomId, cb) {
         });
 }
 
-RoomSchema.statics.leave = function(roomName, userId) {
-    this.findOne({name: roomName}, (err, room) => {
+RoomSchema.statics.leave = function(roomId, userId) {
+    this.findOne({_id: roomId}, (err, room) => {
         if (err) throw err;
         if (room) {
             room.participants.forEach((user, index) => {
