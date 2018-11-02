@@ -1,6 +1,15 @@
 const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
+// Helper functions
+let containsDoc = function(obj, list) {
+    for(let i = 0; i < list.length; ++i) 
+        if (list[i]._id.toString() === obj._id.toString())
+            return true;
+
+    return false;
+}
+
 const RoomSchema = new Schema({
     name: {type: String},
     participants: [{type: Schema.Types.ObjectId, ref: 'User'}]
@@ -9,7 +18,7 @@ const RoomSchema = new Schema({
 RoomSchema.statics.createRoom = function(roomName, cb) {
     if (roomName === 'General' || roomName === 'General 2') {
         this.find({name: roomName})
-            .populate('participants', 'local.username')
+            .populate('participants', 'username')
             .limit(1)
             .exec( (err, room) => {
                 if (err) cb(err);
@@ -29,7 +38,7 @@ RoomSchema.statics.createRoom = function(roomName, cb) {
 
 RoomSchema.statics.getRoom = function(roomId, cb) {
     this.find({_id: roomId})
-        .populate('participants', 'local.username')
+        .populate('participants', 'username')
         .limit(1)
         .exec( (err, room) => cb(err, room[0]));
 }
@@ -41,35 +50,30 @@ RoomSchema.statics.join = function(roomId, user, cb) {
     }
 
     this.find({_id: roomId})
-        .populate('participants', 'local.username')
         .limit(1)
+        .populate('participants', 'username online socket_id')
         .exec( (err, rooms) => {
             if (err) cb(err);
             else if (rooms.length > 0) {
                 let room = rooms[0];
-                let me = room.participants.filter( p => p._id.toString() === user._id );
 
-                if (me.length === 0) {
+                if (room.participants.length === 0)
                     room.participants.push(user._id);
-                    room.save( (err, room) => {
-                        if (err) { 
-                            cb(err);
-                            return;
-                        }
+                else {
+                    let userStr = JSON.stringify(user, null, 2);
 
-                        this.populate(room, {path: 'participants', model: 'User'}, (err, room) => {
-                            room.participants.forEach( (p, index) => {
-                                room.participants[index].local = {
-                                    username: p.local.username
-                                }
-                            })
+                    if(!containsDoc(user, room.participants))
+                        room.participants.push(user._id);
+                } 
 
+                room.save( (err, room) => {
+                    if (err) cb(err);
+                    else {
+                        this.populate(room, {path: 'participants', model: 'User', select: 'username online socket_id'}, ( err, room) => {
                             cb(err, room);
-                        });
-                    });
-                } else {
-                    cb(null, room);
-                }
+                        })
+                    }
+                });
             } else {
                 cb('No Room Found');
             }
@@ -78,14 +82,14 @@ RoomSchema.statics.join = function(roomId, user, cb) {
 
 RoomSchema.statics.getByParticipants = function(participants, cb) {
     this.find({"participants" : {"$in" : participants}})
-        .populate('participants', 'local.username')
+        .populate('participants', 'username')
         .exec(cb);
 }
 
 RoomSchema.statics.getParticipants = function(roomId, cb) {
     this.find({_id: roomId})
         .limit(1)
-        .populate('user', 'local.username')
+        .populate('participants', 'username')
         .exec( (err, room) => {
             cb(err, room.participants);
         });

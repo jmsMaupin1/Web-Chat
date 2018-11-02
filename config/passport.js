@@ -20,7 +20,7 @@ module.exports = (passport) => {
         passReqToCallback: true
     }, (req, email, password, done) => {
         process.nextTick( () => {
-            User.findOne({ 'local.email': email }, (err, user) => {
+            User.findOne({ 'email': email }, (err, user) => {
                 if (err) return done(err);
 
                 // User already exists
@@ -32,9 +32,9 @@ module.exports = (passport) => {
                 const newUser = new User();
 
                 // Set local credentials
-                newUser.local.username = req.body.username;
-                newUser.local.email = email;
-                newUser.local.password = newUser.generateHash(password);
+                newUser.username = req.body.username;
+                newUser.email = email;
+                newUser.password = newUser.generateHash(password);
 
                 // Save User to mongodb via mongoose
                 newUser.save( (err) => {
@@ -50,7 +50,7 @@ module.exports = (passport) => {
         passwordField    : 'password',
         passReqToCallback: true
     }, (req, email, password, done) => {
-        User.findOne( {'local.email' : email }, (err, user) => {
+        User.findOne( {'email' : email }, (err, user) => {
             if (err) throw err;
 
             // User is not found

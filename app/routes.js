@@ -8,11 +8,12 @@ module.exports = (app, passport) => {
     })
 
     app.get('/user_info', (req, res) => {
-        if (req.isAuthenticated())
+        if (req.isAuthenticated()) {
             res.json({
                 _id     : req.user._id,
-                username: req.user.local.username,
+                username: req.user.username,
             });
+        }
         else
             res.json({error: 'User is not logged in'});
     });

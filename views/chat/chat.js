@@ -23,9 +23,9 @@ let insertAfter = function(ref, newEl) {
 
 let addNewMessage = function(data) {
     lastMessageId = data._id;
-    lastHandle    = data.user.local.username;
+    lastHandle    = data.user.username;
 
-    let myMessage = data.user.local.username === me.username;
+    let myMessage = data.user.username === me.username;
 
     let newMessage = `
         <div class="${myMessage ? "my-message" : "other-message"}">
@@ -33,7 +33,7 @@ let addNewMessage = function(data) {
                 <div class="message">
                     <p>${data.message}</p>
                 </div>
-                <div class="username"><strong>${data.user.local.username}</strong></div>
+                <div class="username"><strong>${data.user.username}</strong></div>
             </div>
         </div>
     `;
@@ -55,7 +55,7 @@ let addMessage = function(lastId, message) {
 let postMessage = function(message) {
     if (lastHandle === '')
         addNewMessage(message)
-    else if (message.user.local.username === lastHandle && lastMessageId) {
+    else if (message.user.username === lastHandle && lastMessageId) {
         addMessage(lastMessageId, message.message);
     }
     else 
@@ -77,7 +77,7 @@ let userTemplate = function(data) {
     panel.className = 'detail';
     panel.innerHTML = `
         <a href="#">
-            <h3>${data.local.username}</h3>
+            <h3>${data.username}</h3>
         </a>
     `;
 

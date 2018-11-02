@@ -1,32 +1,20 @@
 const socket  = require('socket.io');
 const Message = require('./models/message');
 const Room    = require('./models/room');
+const User    = require('./models/user');
 
 const connectedUsers = [];
 
 // Helper functions
-let joinroom = function(roomId, data, io) {
-    // need to add this data to the database
-    // add online prop to users
-    // add socket.id to users
-    // add update function to update users (for updating socket.id initially)
-
-    // connectedUsers.push(data);
-    if (connectedUsers.filter( user => user._id === data._id).length === 0)
-        connectedUsers.push(data);
-
+let joinRoom = function(roomId, data, io) {
     Room.join(roomId, data, (err, room) => {
         if (err) throw err;
 
-        io.to(data.socket_id).emit('room_joined', room);
         
-        // Change to just brab the room.participants.socket_id when I store it in the db
-        room.participants.forEach( (p) => {
-            connectedUsers.forEach( user => {
-                if(p._id.toString() === user._id.toString()) {
-                    io.to(user.socket_id).emit('users', room);
-                }
-            })
+        io.to(data.socket_id).emit('room_joined', room);
+
+        room.participants.forEach( p => {
+            io.to(p.socket_id).emit('users', room);
         })
     })
 }
@@ -36,30 +24,50 @@ module.exports = app => {
 
     io.on('connection', socket => {
 
+        socket.on('disconnect', () => {
+            User.findOne({socket_id: socket.id}, (err, user) => {
+                if (err) throw err;
+                if (!user) return;
+
+                User.updateUser(user._id, {
+                    socket_id : '',
+                    online    : false
+                }, (err, user) => {
+                    if (err) throw err;
+                    Room.getByParticipants(user._id, (err, rooms) => {
+                        rooms.forEach( room => {
+                            Room.populate(room, {path: 'participants', model: 'User', select: 'username online socket_id'}, (err, room) => {
+                                if (err) throw err;
+
+                                room.participants.forEach( p => {
+                                    io.to(p.socket_id).emit('users', room);
+                                })                                
+                            })
+                        })
+                    })
+                })
+            });
+        })
+
         socket.on('connect_user', data => {
             data.socket_id = socket.id;
 
-            Room.createRoom('General', (err, room) => {
+            User.updateUser(data._id, {
+                socket_id: socket.id,
+                online   : true
+            }, (err, user) => {
                 if (err) throw err;
 
-                joinroom(room._id, data, io);
+                Room.createRoom('General', (err, room) => {
+                    if (err) throw err;
+                    joinRoom(room._id, user, io);
+                })
+
+                Room.createRoom('General 2', (err, room) => {
+                    if (err) throw err;
+                    joinRoom(room._id, user, io);
+                })
             })
-
-            Room.createRoom('General 2', (err, room) => {
-                if (err) throw err;
-
-                joinroom(room._id, data, io);
-            })
-        })
-
-        socket.on('disconnect', data => {
-            connectedUsers.forEach((user, index) => {
-                if (user.socket_id === socket.id){
-                    connectedUsers.splice(index, 1);
-                }
-            });
-
-            io.sockets.emit('users', connectedUsers);
         })
 
         socket.on('chat', data => {
@@ -73,9 +81,6 @@ module.exports = app => {
 
                 Message.populate(m, {path: 'user', model: 'User'}, (err, message) => {
                     if (err) throw err;
-                    message.user.local = {
-                        username: message.user.local.username,
-                    }
                     io.sockets.emit('chat', message);
                 })
             });

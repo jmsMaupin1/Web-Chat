@@ -10,7 +10,7 @@ const messageSchema = new Schema({
 
 messageSchema.statics.getMessagesInRoom = function(roomId, cb) {
     this.find({room: roomId})
-        .populate('user', 'local.username')
+        .populate('user', 'username')
         .exec(cb);
 }
 
