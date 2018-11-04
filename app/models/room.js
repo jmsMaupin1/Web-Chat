@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+ const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 // Helper functions
@@ -81,7 +81,7 @@ RoomSchema.statics.join = function(roomId, user, cb) {
 }
 
 RoomSchema.statics.getByParticipants = function(participants, cb) {
-    this.find({"participants" : {"$in" : participants}})
+    this.find({"participants" : {"$all" : participants}})
         .populate('participants', 'username')
         .exec(cb);
 }
@@ -89,7 +89,6 @@ RoomSchema.statics.getByParticipants = function(participants, cb) {
 RoomSchema.statics.getParticipants = function(roomId, cb) {
     this.find({_id: roomId})
         .limit(1)
-        .populate('participants', 'username')
         .exec( (err, room) => {
             cb(err, room.participants);
         });

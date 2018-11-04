@@ -70,6 +70,26 @@ module.exports = app => {
             })
         })
 
+        socket.on('private_room', data => {
+            Room.getByParticipants([data.to, data.from], (err, roomList) => {
+                if (err) throw err;
+                
+                let rooms = roomList.filter( room => {
+                    return (
+                        !(room.name === "General" || room.name === "General 2")
+                        &&(room.participants.length === 2));
+                })
+                
+                if (rooms.length === 0)
+                    Room.createRoom('', (err, room) => {
+                        if (err) throw err;
+
+                        joinRoom(room._id, data.from, io);
+                        joinRoom(room._id, data.to, io);
+                    })
+            })
+        })
+
         socket.on('chat', data => {
             new Message({
                 created: Date.now(),

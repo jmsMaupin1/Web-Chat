@@ -82,10 +82,6 @@ let userTemplate = function(data) {
     `;
 
     panel.addEventListener('click', () => {
-        console.log({
-            to: data,
-            from: me
-        })
         socket.emit('private_room', {
             to: data,
             from: me
@@ -97,10 +93,17 @@ let userTemplate = function(data) {
 
 let roomTemplate = function(data) {
     let panel = document.createElement('div');
+    let name  = data.name
+
+    if(name === "") {
+        name = data.participants.filter( (p) => p._id !== me._id)[0].username;
+        
+    }
+
     panel.className = 'detail';
     panel.innerHTML = `
         <a href="#">
-            <h3>${data.name}</h3>
+            <h3>${name}</h3>
         </a>
     `;
 
