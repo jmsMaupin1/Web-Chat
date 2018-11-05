@@ -11,7 +11,6 @@ const message       = document.getElementById('message'),
 let handle          = '';
 let me              = {};
 let room            = {};
-let roomList        = [];
 let lastHandle      = '';
 let lastMessageId   = '';
 let connectedUsers  = {};
@@ -163,6 +162,7 @@ people.addEventListener('click', () => {
 // Listen for socket events
 socket.on('room_joined', data => {
     room = data;
+    connectedUsers[room._id] = data;
     socket.emit("get_messages", data);
 });
 

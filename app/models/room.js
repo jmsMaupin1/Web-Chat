@@ -60,8 +60,6 @@ RoomSchema.statics.join = function(roomId, user, cb) {
                 if (room.participants.length === 0)
                     room.participants.push(user._id);
                 else {
-                    let userStr = JSON.stringify(user, null, 2);
-
                     if(!containsDoc(user, room.participants))
                         room.participants.push(user._id);
                 } 

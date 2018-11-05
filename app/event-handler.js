@@ -10,7 +10,6 @@ let joinRoom = function(roomId, data, io) {
     Room.join(roomId, data, (err, room) => {
         if (err) throw err;
 
-        
         io.to(data.socket_id).emit('room_joined', room);
 
         room.participants.forEach( p => {
@@ -67,6 +66,13 @@ module.exports = app => {
                     if (err) throw err;
                     joinRoom(room._id, user, io);
                 })
+
+                Room.getByParticipants(data._id, (err, rooms) => {
+                    rooms.forEach( room => {
+                        joinRoom(room._id, user, io);
+                        socket.join(room._id);
+                    })
+                })
             })
         })
 
@@ -83,10 +89,14 @@ module.exports = app => {
                 if (rooms.length === 0)
                     Room.createRoom('', (err, room) => {
                         if (err) throw err;
-
                         joinRoom(room._id, data.from, io);
                         joinRoom(room._id, data.to, io);
                     })
+                else {
+                    rooms.forEach( room => {
+                        io.to(socket.id).emit('room_joined', room);
+                    })
+                }
             })
         })
 
@@ -101,7 +111,8 @@ module.exports = app => {
 
                 Message.populate(m, {path: 'user', model: 'User'}, (err, message) => {
                     if (err) throw err;
-                    io.sockets.emit('chat', message);
+
+                    io.to(data.room._id).emit('chat', message);
                 })
             });
         });
@@ -115,6 +126,8 @@ module.exports = app => {
         })
 
         socket.on('get_messages', data => {
+            socket.join(data._id);
+
             Message.getMessagesInRoom(data._id, (err, messages) => {
                 io.to(socket.id).emit('chat_history', {
                     room: data,
