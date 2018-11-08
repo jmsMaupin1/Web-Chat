@@ -1,3 +1,5 @@
+const Room = require('./models/room');
+
 module.exports = (app, passport) => {
 
     app.get('/', (req, res) => {
@@ -27,6 +29,16 @@ module.exports = (app, passport) => {
         successRedirect: '/auth',
         failureRedirect: '/login'
     }))
+
+    app.post('/newroom', isLoggedIn, (req, res) => {
+        Room.createRoom(req.body.roomname, (err, room) => {
+            Room.join(room._id, req.user._id, (err, newRoom) => {
+                if (err) throw err;
+
+                return res.redirect('/');
+            })
+        })
+    })
 }
 
 // Authentication Middleware

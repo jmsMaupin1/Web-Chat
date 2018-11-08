@@ -1,4 +1,4 @@
- const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 // Helper functions
@@ -11,8 +11,9 @@ let containsDoc = function(obj, list) {
 }
 
 const RoomSchema = new Schema({
-    name: {type: String},
-    participants: [{type: Schema.Types.ObjectId, ref: 'User'}]
+    name         : {type: String},
+    public       : {type: Boolean},
+    participants : [{type: Schema.Types.ObjectId, ref: 'User'}]
 })
 
 RoomSchema.statics.createRoom = function(roomName, cb) {

@@ -158,6 +158,19 @@ people.addEventListener('click', () => {
     );
 })
 
+let createRoom = function(roomName, isPrivate) {
+    
+    return false;
+}
+
+$('#newroom').submit((event) => {
+    let roomName  = $("#roomname").val();
+    let isPrivate = $("#isPrivate").is(":checked");
+
+    console.log(`create ${roomName} a ${isPrivate? 'private' : 'public'} room`);
+    event.preventDefault();
+})
+
 
 // Listen for socket events
 socket.on('room_joined', data => {
@@ -168,6 +181,17 @@ socket.on('room_joined', data => {
 
 socket.on('room_list', data => {
     populateSidebarList(roomTemplate, data);
+
+    let sideBarList  = document.getElementById('sidebar-list')
+    let addRoomPanel = document.createElement('div');
+    addRoomPanel.className = 'detail';
+    addRoomPanel.innerHTML = `
+        <a href="/newroom">
+            <h3>Create Room</h3>
+        </a>
+    `;
+
+    insertAfter(sideBarList, addRoomPanel);
 })
 
 socket.on('chat_history', data => {

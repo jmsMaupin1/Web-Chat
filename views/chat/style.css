@@ -81,3 +81,38 @@ body {
     text-decoration: none;
     color: black;
 }
+
+/* Modal Styling */
+.modal {
+    /*display: none;*/
+    position: fixed;
+    background: rgba(0,0,0,.4);
+    width: 100%;
+    height: 100vh;
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    width: 800px;
+    height: 450px;
+    margin-left: -400px;
+    margin-top: -225px;
+    top: 50%;
+    left: 50%;
+    padding: 100px;
+
+    background: white;
+}
+
+.modal-row {
+    width: 100%;
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-row > label {
+    width: 50%;
+    font-size: 1.5em;
+}

@@ -35,6 +35,7 @@ require('./config/passport')(passport);
 require('./app/routes.js')(app, passport);
 app.use('/login', express.static(path.join(__dirname + '/views/login-registration/')));
 app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/chat/')));
+app.use('/newroom', isLoggedIn, express.static(path.join(__dirname + '/views/new-room/')));
 
 // Launch and set up socket.io
 let server = app.listen(port, (err, res) => {
