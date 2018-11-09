@@ -164,12 +164,28 @@ let createRoom = function(roomName, isPrivate) {
 }
 
 $('#newroom').submit((event) => {
-    let roomName  = $("#roomname").val();
-    let isPrivate = $("#isPrivate").is(":checked");
+    let roomName  = $('#roomname');
+    let isPrivate = $('#isPrivate');
 
-    console.log(`create ${roomName} a ${isPrivate? 'private' : 'public'} room`);
+    socket.emit('create_room', {
+        roomName: roomName.val(),
+        isPrivate: isPrivate.is(':checked')
+    });
+    
+    roomName.val('');
+    isPrivate.prop('checked', false);
+
+    $(".modal").hide();
     event.preventDefault();
 })
+
+$(".modal").click(() => {
+    $(".modal").hide();
+})
+
+$(".modal-content").click( e => {
+    e.stopPropagation();
+});
 
 
 // Listen for socket events
@@ -186,10 +202,14 @@ socket.on('room_list', data => {
     let addRoomPanel = document.createElement('div');
     addRoomPanel.className = 'detail';
     addRoomPanel.innerHTML = `
-        <a href="/newroom">
+        <a href="#">
             <h3>Create Room</h3>
         </a>
     `;
+
+    addRoomPanel.addEventListener('click', () => {
+        $(".modal").show();
+    });
 
     insertAfter(sideBarList, addRoomPanel);
 })
