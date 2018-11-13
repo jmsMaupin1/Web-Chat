@@ -5,12 +5,13 @@ body {
 
 *, *:before, *:after {
     box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
 }
 
 /* Chat styling */
 .chat-grid {
     display: grid;
-    grid-template-columns: 1fr 3fr; 
+    grid-template-columns: 1fr 5fr; 
 }
 
 .chat-window {
@@ -70,6 +71,33 @@ body {
 
 .side-content {
     overflow-y: auto;
+}
+
+.side-content > ul > li {
+    list-style: none;
+    position: relative;
+    padding-left: 50px;
+    line-height: 2;
+    font-size: 24px;
+}
+
+.side-content > ul > li:before {
+    font-family: FontAwesome;
+    font-size: 24px;
+    position: absolute;
+    left: 0;
+}
+
+.li-person:before {
+    content: "\f007";
+}
+
+.li-conversation:before {
+    content: "\f086";
+}
+
+.li-add:before {
+    content: "\f055";
 }
 
 .detail {

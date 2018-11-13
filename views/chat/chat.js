@@ -72,13 +72,9 @@ let populateSidebarList = function(template, data) {
 }
 
 let userTemplate = function(data) {
-    let panel = document.createElement('div');
-    panel.className = 'detail';
-    panel.innerHTML = `
-        <a href="#">
-            <h3>${data.username}</h3>
-        </a>
-    `;
+    let panel = document.createElement('li');
+    panel.className = 'li-person';
+    panel.innerHTML = `${data.username}`;
 
     panel.addEventListener('click', () => {
         socket.emit('private_room', {
@@ -91,7 +87,7 @@ let userTemplate = function(data) {
 }
 
 let roomTemplate = function(data) {
-    let panel = document.createElement('div');
+    let panel = document.createElement('li');
     let name  = data.name
 
     if(name === "") {
@@ -99,12 +95,8 @@ let roomTemplate = function(data) {
         
     }
 
-    panel.className = 'detail';
-    panel.innerHTML = `
-        <a href="#">
-            <h3>${name}</h3>
-        </a>
-    `;
+    panel.className = 'li-conversation';
+    panel.innerHTML = `${name}`;
 
     panel.addEventListener('click', () => {
         room = data;
@@ -158,18 +150,14 @@ people.addEventListener('click', () => {
     );
 })
 
-let createRoom = function(roomName, isPrivate) {
-    
-    return false;
-}
-
 $('#newroom').submit((event) => {
     let roomName  = $('#roomname');
     let isPrivate = $('#isPrivate');
 
     socket.emit('create_room', {
-        roomName: roomName.val(),
-        isPrivate: isPrivate.is(':checked')
+        roomName : roomName.val(),
+        isPublic : !isPrivate.is(':checked'),
+        user     : me
     });
     
     roomName.val('');
@@ -194,6 +182,21 @@ socket.on('room_joined', data => {
     connectedUsers[room._id] = data;
     socket.emit("get_messages", data);
 });
+
+socket.on('rooms', data => {
+    populateSidebarList(roomTemplate, data.mine);
+
+    let sideBarList  = document.getElementById('sidebar-list')
+    let addRoomPanel = document.createElement('li');
+    addRoomPanel.className = 'li-add';
+    addRoomPanel.innerHTML = `Create Room`;
+
+    addRoomPanel.addEventListener('click', () => {
+        $(".modal").show();
+    });
+
+    insertAfter(sideBarList, addRoomPanel);
+})
 
 socket.on('room_list', data => {
     populateSidebarList(roomTemplate, data);
