@@ -61,16 +61,64 @@ let postMessage = function(message) {
         addNewMessage(message)
 }
 
+let populateRooms = function(data) {
+    let sidebar = document.getElementById('sidebar-content');
+    sidebar.innerHTML = '';
+
+    let myConvoLabel  = document.createElement('label');
+    myConvoLabel.innerHTML = 'My Conversations';
+
+    let myConvoList   = document.createElement('ul');
+    myConvoList.setAttribute('id', 'my-conversations');
+
+    let joinableLabel = document.createElement('label');
+    joinableLabel.innerHTML = 'Joinable Conversations';
+
+    let joinableList  = document.createElement('ul');
+    joinableList.setAttribute('id', 'joinable-conversations');
+
+    let myRooms       = data.mine;
+    let joinableRooms = data.joinable;
+
+    insertAfter(sidebar, myConvoLabel);
+    myRooms.forEach( room => {
+        insertAfter(myConvoList, roomTemplate(room, () => {
+            socket.emit('get_messages', room)
+        }));
+    })
+    insertAfter(myConvoList, CreateRoomTemplate());
+    insertAfter(sidebar, myConvoList);
+
+    insertAfter(sidebar, joinableLabel);
+    joinableRooms.forEach( room => {
+        insertAfter(joinableList, roomTemplate(room, () => {
+            socket.emit('join', {
+                user: me,
+                room: room
+            })
+        }));
+    })
+    insertAfter(sidebar, joinableList);
+
+}
+
 let populateSidebarList = function(template, data) {
-    let sidebar = document.getElementById('sidebar-list');
+    let sidebar = document.getElementById('sidebar-content');
+    let listContainer = document.createElement('ul');
+    listContainer.setAttribute('id', 'sidebar-list');
 
     sidebar.innerHTML = '';
 
+
+
     data.forEach( d => {
-        insertAfter(sidebar, template(d));
+        insertAfter(listContainer, template(d));
     })
+
+    insertAfter(sidebar, listContainer);
 }
 
+// Template functions
 let userTemplate = function(data) {
     let panel = document.createElement('li');
     panel.className = 'li-person';
@@ -86,7 +134,7 @@ let userTemplate = function(data) {
     return panel;
 }
 
-let roomTemplate = function(data) {
+let roomTemplate = function(data, onClick) {
     let panel = document.createElement('li');
     let name  = data.name
 
@@ -98,13 +146,23 @@ let roomTemplate = function(data) {
     panel.className = 'li-conversation';
     panel.innerHTML = `${name}`;
 
+    panel.addEventListener('click', onClick);
+
+    return panel;
+}
+
+let CreateRoomTemplate = function() {
+    let panel = document.createElement('li');
+    panel.className = 'li-add';
+    panel.innerHTML = 'Create';
+
     panel.addEventListener('click', () => {
-        room = data;
-        socket.emit('get_messages', data);
+        $(".modal").show();
     })
 
     return panel;
 }
+
 
 // Get profile information
 $.ajax({
@@ -180,41 +238,16 @@ $(".modal-content").click( e => {
 socket.on('room_joined', data => {
     room = data;
     connectedUsers[room._id] = data;
+    socket.emit('get_rooms', me._id);
     socket.emit("get_messages", data);
 });
 
 socket.on('rooms', data => {
-    populateSidebarList(roomTemplate, data.mine);
-
-    let sideBarList  = document.getElementById('sidebar-list')
-    let addRoomPanel = document.createElement('li');
-    addRoomPanel.className = 'li-add';
-    addRoomPanel.innerHTML = `Create Room`;
-
-    addRoomPanel.addEventListener('click', () => {
-        $(".modal").show();
-    });
-
-    insertAfter(sideBarList, addRoomPanel);
+    populateRooms(data);
 })
 
-socket.on('room_list', data => {
-    populateSidebarList(roomTemplate, data);
-
-    let sideBarList  = document.getElementById('sidebar-list')
-    let addRoomPanel = document.createElement('div');
-    addRoomPanel.className = 'detail';
-    addRoomPanel.innerHTML = `
-        <a href="#">
-            <h3>Create Room</h3>
-        </a>
-    `;
-
-    addRoomPanel.addEventListener('click', () => {
-        $(".modal").show();
-    });
-
-    insertAfter(sideBarList, addRoomPanel);
+socket.on('room_created', () => {
+    socket.emit('get_rooms', me._id);
 })
 
 socket.on('chat_history', data => {

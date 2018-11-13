@@ -16,7 +16,7 @@ const RoomSchema = new Schema({
     participants : [{type: Schema.Types.ObjectId, ref: 'User'}]
 })
 
-RoomSchema.statics.createRoom = function(roomName, cb) {
+RoomSchema.statics.createRoom = function(roomName, isPublic, cb, user) {
     if (roomName === 'General' || roomName === 'General 2') {
         this.find({name: roomName})
             .populate('participants', 'username')
@@ -33,6 +33,8 @@ RoomSchema.statics.createRoom = function(roomName, cb) {
     } else {
         let newRoom = new this();
         newRoom.name = roomName;
+        newRoom.public = isPublic;
+        newRoom.participants = [user];
         newRoom.save(cb);
     }
 }
@@ -77,6 +79,21 @@ RoomSchema.statics.join = function(roomId, user, cb) {
                 cb('No Room Found');
             }
         })
+}
+
+RoomSchema.statics.getJoinableRooms = function(user, cb) {
+    this.find({"$and" : [
+            {participants : {"$ne" : user}}, 
+            {public: true}
+        ]})
+        .populate('participants', 'username')
+        .exec(cb);
+}
+
+RoomSchema.statics.getPublicRooms = function(cb) {
+    this.find({public: true})
+        .populate('participants', 'username')
+        .exec(cb);
 }
 
 RoomSchema.statics.getByParticipants = function(participants, cb) {
