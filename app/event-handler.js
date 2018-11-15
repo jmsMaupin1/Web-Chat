@@ -140,16 +140,16 @@ module.exports = app => {
 
         })
 
-        socket.on('get_my_rooms', data => {
-            Room.getByParticipants(data, (err, rooms) => {
-                if (err) throw err;
-
-                io.to(socket.id).emit('room_list', rooms);
-            })
-        })
-
         socket.on('join', data => {
             joinRoom(data.room._id, data.user, io);
+        })
+
+        socket.on('kick', data => {
+            Room.kick(data.room._id, data.admin, data.user, (err, room) => {
+                if (err) throw err;
+
+                console.log(JSON.stringify(room, null, 2));
+            })
         })
 
         socket.on('get_messages', data => {

@@ -81,7 +81,7 @@ body {
     font-size: 24px;
 }
 
-.side-content > ul > li:before {
+.side-content > ul > li > span:before {
     font-family: FontAwesome;
     font-size: 24px;
     position: absolute;
@@ -98,6 +98,11 @@ body {
 
 .li-add:before {
     content: "\f055";
+}
+
+.kick:before {
+    font-family: FontAwesome;
+    content: "\f00d";
 }
 
 .detail {

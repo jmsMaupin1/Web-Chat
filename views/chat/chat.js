@@ -121,15 +121,29 @@ let populateSidebarList = function(template, data) {
 // Template functions
 let userTemplate = function(data) {
     let panel = document.createElement('li');
-    panel.className = 'li-person';
-    panel.innerHTML = `${data.username}`;
 
-    panel.addEventListener('click', () => {
+    let user  = document.createElement('span');
+    user.className = 'li-person';
+    user.innerHTML = `${data.username}  `;
+    user.addEventListener('click', () => {
         socket.emit('private_room', {
             to: data,
             from: me
-        });
+        })
     })
+
+    let kick  = document.createElement('i');
+    kick.className = 'kick';
+    kick.addEventListener('click', () => {
+        socket.emit('kick', {
+            room : room,
+            admin: me,
+            user : data
+        })
+    })
+
+    insertAfter(panel, user);
+    insertAfter(panel, kick);
 
     return panel;
 }
@@ -142,9 +156,7 @@ let roomTemplate = function(data, onClick) {
         name = data.participants.filter( (p) => p._id !== me._id)[0].username;
         
     }
-
-    panel.className = 'li-conversation';
-    panel.innerHTML = `${name}`;
+    panel.innerHTML = `<span class="li-conversation">${name}</span>`;
 
     panel.addEventListener('click', onClick);
 
@@ -153,8 +165,7 @@ let roomTemplate = function(data, onClick) {
 
 let CreateRoomTemplate = function() {
     let panel = document.createElement('li');
-    panel.className = 'li-add';
-    panel.innerHTML = 'Create';
+    panel.innerHTML = '<span class="li-add">Create</span>';
 
     panel.addEventListener('click', () => {
         $(".modal").show();
@@ -236,7 +247,6 @@ $(".modal-content").click( e => {
 
 // Listen for socket events
 socket.on('room_joined', data => {
-    room = data;
     connectedUsers[room._id] = data;
     socket.emit('get_rooms', me._id);
     socket.emit("get_messages", data);
@@ -251,6 +261,7 @@ socket.on('room_created', () => {
 })
 
 socket.on('chat_history', data => {
+    room = data.room;
     feedback.innerHTML = '';
     lastHandle         = '';
     lastMessageId      = '';
@@ -261,6 +272,7 @@ socket.on('chat_history', data => {
 })
 
 socket.on('chat', data => {
+    console.log(data);
     postMessage(data);
 });
 

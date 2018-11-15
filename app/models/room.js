@@ -5,7 +5,7 @@ const Schema   = mongoose.Schema;
 let containsDoc = function(obj, list) {
     for(let i = 0; i < list.length; ++i) 
         if (list[i]._id.toString() === obj._id.toString())
-            return true;
+            return i;
 
     return false;
 }
@@ -13,7 +13,8 @@ let containsDoc = function(obj, list) {
 const RoomSchema = new Schema({
     name         : {type: String},
     public       : {type: Boolean},
-    participants : [{type: Schema.Types.ObjectId, ref: 'User'}]
+    participants : [{type: Schema.Types.ObjectId, ref: 'User'}],
+    admins       : [{type: Schema.Types.ObjectId, ref: 'User'}],
 })
 
 RoomSchema.statics.createRoom = function(roomName, isPublic, cb, user) {
@@ -35,6 +36,7 @@ RoomSchema.statics.createRoom = function(roomName, isPublic, cb, user) {
         newRoom.name = roomName;
         newRoom.public = isPublic;
         newRoom.participants = [user];
+        newRoom.admins = [user];
         newRoom.save(cb);
     }
 }
@@ -63,7 +65,7 @@ RoomSchema.statics.join = function(roomId, user, cb) {
                 if (room.participants.length === 0)
                     room.participants.push(user._id);
                 else {
-                    if(!containsDoc(user, room.participants))
+                    if(containsDoc(user, room.participants) === false)
                         room.participants.push(user._id);
                 } 
 
@@ -77,6 +79,28 @@ RoomSchema.statics.join = function(roomId, user, cb) {
                 });
             } else {
                 cb('No Room Found');
+            }
+        })
+}
+
+RoomSchema.statics.kick = function(roomId, admin, user, cb) {
+    this.findOne({"_id" : roomId})
+        .populate('participants', 'username socket_id online')
+        .populate('admin')
+        .exec( (err, room) => {
+            if (err) throw err;
+            else if (!room) cb('room not found');
+            else {
+                console.log(JSON.stringify(room.admins, null, 2));
+                if(containsDoc(admin, room.admins) === false)
+                    return;
+
+                let userIndex = containsDoc(user, room.participants);
+
+                if(userIndex !== false)
+                    room.participants.splice(userIndex, 1);
+
+                room.save(cb);
             }
         })
 }
