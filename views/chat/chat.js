@@ -115,6 +115,13 @@ let populateSidebarList = function(template, data) {
         insertAfter(listContainer, template(d));
     })
 
+    let addPerson = document.createElement('li');
+    addPerson.innerHTML = `<span class="li-add">Invite</span>`;
+    addPerson.addEventListener('click', () => {
+        socket.emit("get_users");
+    })
+
+    insertAfter(listContainer, addPerson);
     insertAfter(sidebar, listContainer);
 }
 
@@ -168,7 +175,7 @@ let CreateRoomTemplate = function() {
     panel.innerHTML = '<span class="li-add">Create</span>';
 
     panel.addEventListener('click', () => {
-        $(".modal").show();
+        $("#create-room").show();
     })
 
     return panel;
@@ -232,7 +239,7 @@ $('#newroom').submit((event) => {
     roomName.val('');
     isPrivate.prop('checked', false);
 
-    $(".modal").hide();
+    $("#create-room").hide();
     event.preventDefault();
 })
 
@@ -272,9 +279,30 @@ socket.on('chat_history', data => {
 })
 
 socket.on('chat', data => {
-    console.log(data);
     postMessage(data);
 });
+
+socket.on('all_users', data => {
+    let userListContainer = document.getElementById('people-modal');
+
+    data.forEach( user => {
+        let uPanel = document.createElement('li');
+        uPanel.innerHTML = `<span class="li-person">${user.username}</span>`;
+
+        uPanel.addEventListener('click', () => {
+            socket.emit('invite', {
+                room  : room,
+                admin : me,
+                user  : user
+            })
+
+            $(".modal").hide();
+        })
+        insertAfter(userListContainer, uPanel);
+    })
+
+    $("#user-lists").show();
+})
 
 socket.on('users', data => {
     connectedUsers[data._id] = data;

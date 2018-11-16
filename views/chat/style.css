@@ -73,7 +73,7 @@ body {
     overflow-y: auto;
 }
 
-.side-content > ul > li {
+ul > li {
     list-style: none;
     position: relative;
     padding-left: 50px;
@@ -81,7 +81,7 @@ body {
     font-size: 24px;
 }
 
-.side-content > ul > li > span:before {
+ul > li > span:before {
     font-family: FontAwesome;
     font-size: 24px;
     position: absolute;

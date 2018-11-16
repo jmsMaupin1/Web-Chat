@@ -33,4 +33,20 @@ UserSchema.statics.updateUser = function(userId, update, cb) {
     });
 }
 
+UserSchema.statics.getAll = function(cb) {
+    this.find({})
+        .exec( (err, users) => {
+            users = users.map( user => {
+                return {
+                    _id      : user._id,
+                    username : user.username,
+                    socket_id: user.socket_id,
+                    online   : user.online
+                }
+            })
+
+            cb(err, users);
+        });
+}
+
 module.exports = mongoose.model('User', UserSchema);

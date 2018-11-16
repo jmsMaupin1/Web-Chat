@@ -48,6 +48,16 @@ RoomSchema.statics.getRoom = function(roomId, cb) {
         .exec( (err, room) => cb(err, room[0]));
 }
 
+RoomSchema.statics.isAdmin = function(roomId, admin, cb) {
+    this.findOne({_id: roomId})
+        .populate('admin')
+        .exec( (err, room) => {
+            if (err) cb(err);
+            else if (!room) cb('room not found');
+            else cb(null, containsDoc(admin, room.participants) !== false)
+        })
+}
+
 RoomSchema.statics.join = function(roomId, user, cb) {
     if (!user) {
         cb('user is null');
@@ -91,7 +101,6 @@ RoomSchema.statics.kick = function(roomId, admin, user, cb) {
             if (err) throw err;
             else if (!room) cb('room not found');
             else {
-                console.log(JSON.stringify(room.admins, null, 2));
                 if(containsDoc(admin, room.admins) === false)
                     return;
 

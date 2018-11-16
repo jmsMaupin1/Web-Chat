@@ -144,11 +144,21 @@ module.exports = app => {
             joinRoom(data.room._id, data.user, io);
         })
 
+        socket.on('invite', data => {
+            Room.isAdmin(data.room._id, data.admin, (err, isAdmin) => {
+                if (err) throw err;
+
+                if(isAdmin) {
+                    joinRoom(data.room._id, data.user, io);
+                } 
+            })
+        })
+
         socket.on('kick', data => {
             Room.kick(data.room._id, data.admin, data.user, (err, room) => {
                 if (err) throw err;
 
-                console.log(JSON.stringify(room, null, 2));
+                // let clients know user was kicked
             })
         })
 
@@ -160,6 +170,14 @@ module.exports = app => {
                     room: data,
                     messages: messages
                 })
+            })
+        })
+
+        socket.on('get_users', () => {
+            User.getAll( (err, users) => {
+                if (err) throw err;
+
+                io.to(socket.id).emit('all_users', users);
             })
         })
     })

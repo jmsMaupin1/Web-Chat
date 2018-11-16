@@ -12,7 +12,7 @@
 		crossorigin="anonymous"></script>
 </head>
 <body>
-	<div class="modal">
+	<div class="modal" id="create-room">
 		<form class="modal-content" id="newroom">
 			<div class="modal-row">
 				<label for="roomname">Room Name: </label>
@@ -28,6 +28,12 @@
 				<input type="submit" value="create">
 			</div>
 		</form>
+	</div>
+
+	<div class="modal" id="user-lists">
+		<div class="modal-content">
+			<ul id="people-modal"></ul>
+		</div>
 	</div>
 	
 	<div class="chat-grid">
