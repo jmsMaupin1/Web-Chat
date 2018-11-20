@@ -11,6 +11,7 @@ const message       = document.getElementById('message'),
 let handle          = '';
 let me              = {};
 let room            = {};
+let invitedRoom     = {};
 let lastHandle      = '';
 let lastMessageId   = '';
 let connectedUsers  = {};
@@ -139,9 +140,10 @@ let userTemplate = function(data) {
         })
     })
 
-    let kick  = document.createElement('i');
+    let kick  = document.createElement('span');
     kick.className = 'kick';
     kick.addEventListener('click', () => {
+
         socket.emit('kick', {
             room : room,
             admin: me,
@@ -243,6 +245,16 @@ $('#newroom').submit((event) => {
     event.preventDefault();
 })
 
+$("#accept").click(() => {
+    socket.emit('accept', invitedRoom);
+    $(".modal").hide();
+})
+
+$("#reject").click(() => {
+    socket.emit('reject', invitedRoom);
+    $(".modal").hide();
+})
+
 $(".modal").click(() => {
     $(".modal").hide();
 })
@@ -284,6 +296,7 @@ socket.on('chat', data => {
 
 socket.on('all_users', data => {
     let userListContainer = document.getElementById('people-modal');
+    userListContainer.innerHTML = '';
 
     data.forEach( user => {
         let uPanel = document.createElement('li');
@@ -312,4 +325,23 @@ socket.on('users', data => {
             return user._id !== me._id;
         })
     );
+})
+
+socket.on('kick', data => {
+    connectedUsers[room._id] = data;
+    populateSidebarList(userTemplate, 
+        connectedUsers[room._id].participants.filter( user => {
+            return user._id !== me._id;
+        })
+    );
+})
+
+socket.on('request_join', data => {
+    let {room, admin} = data;
+    invitedRoom = room;
+
+    let requestContent = document.getElementById('request-content');
+    requestContent.innerHTML = `${admin.username} has invited you to join ${room.name}`;
+    $("#request-join").show();
+    
 })
