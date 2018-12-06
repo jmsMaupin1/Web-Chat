@@ -4,9 +4,10 @@ import React, { Component } from 'react'
 export default class index extends Component {
   render() {
     return (
-      <>
-        <h1>This is App</h1>
-      </>
+      <div>
+        <h1>Welcome Back</h1>
+        <h3>Please Log in to continue</h3>
+      </div>
     )
   }
 }

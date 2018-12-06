@@ -20,15 +20,22 @@ const port         = process.env.PORT || 8080;
 
 app.use(morgan('dev'));
 app.use(cookieParser());
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json());
 
 // Required for passport
-app.use(session({secret: 'not-really-the-secret'})); // session secret
+app.use(session({
+    secret: 'not-really-the-secret', 
+    resave: false,
+    saveUninitialized: false
+})); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
 // Configuration
-mongoose.connect(configDB.url);
+mongoose.connect(configDB.url, {useNewUrlParser: true}).catch( err => {
+    console.log('Unable to connect to mongodb instance error', err);
+});
 require('./config/passport')(passport);
 
 // Routes
