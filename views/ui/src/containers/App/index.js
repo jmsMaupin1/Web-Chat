@@ -19,7 +19,7 @@ export default class index extends Component {
     e.preventDefault();
 
     this.setState({login: !this.state.login})
-  }
+  }  
 
   onChange(e) {
     this.setState({

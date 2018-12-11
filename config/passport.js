@@ -45,11 +45,7 @@ module.exports = (passport) => {
         })
     }));
 
-    passport.use('local-login', new LocalStrategy({
-        usernameField    : 'email',
-        passwordField    : 'password',
-        passReqToCallback: true
-    }, (req, email, password, done) => {
+    passport.use('local-login', new LocalStrategy({}, (email, password, done) => {
         User.findOne( {'email' : email }, (err, user) => {
             if (err) throw err;
 

@@ -8,57 +8,35 @@ const session      = require('express-session');
 // Import the rest of the tools
 const mongoose     = require('mongoose');
 const passport     = require('passport');
-const socket       = require('socket.io');
-const path         = require('path');
 
-// Get Configurations
-const configDB     = require('./config/database');
+// DB Config
+const dbPath       = require('./config/database').url;
 
-// Set up express
+// Set up server app
 const app          = express();
 const port         = process.env.PORT || 8080;
 
+// Set up middleware
 app.use(morgan('dev'));
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-// Required for passport
 app.use(session({
-    secret: 'not-really-the-secret', 
-    resave: false,
-    saveUninitialized: false
-})); // session secret
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
+	secret: process.env.APP_SECRET || 'this is the dev secret',
+	resave: false,
+	saveUninitialized: false
+}))
 
-// Configuration
-mongoose.connect(configDB.url, {useNewUrlParser: true}).catch( err => {
-    console.log('Unable to connect to mongodb instance error', err);
-});
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Connect to mongo
+mongoose.connect(dbPath, { useNewUrlParser: true });
 require('./config/passport')(passport);
 
-// Routes
-require('./app/routes.js')(app, passport);
-app.use('/login', express.static(path.join(__dirname + '/views/login-registration/')));
-app.use('/auth', isLoggedIn, express.static(path.join(__dirname + '/views/chat/')));
-app.use('/newroom', isLoggedIn, express.static(path.join(__dirname + '/views/new-room/')));
+require('./app/routes')(app, passport);
 
-// Launch and set up socket.io
-let server = app.listen(port, (err, res) => {
-    if (err) throw err;
-
-    console.log(`Listening on port: ${port}`)
-});
-
-// Event Handler
-require('./app/event-handler.js')(server);
-
-
-// Authentication Middleware
-function isLoggedIn (req, res, next) {
-    if (req.isAuthenticated())
-        return next();
-
-    return res.redirect('/')
-}
+app.listen(port, () => {
+    console.log(`Listening on ${port}`);
+})
