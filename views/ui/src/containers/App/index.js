@@ -7,9 +7,12 @@ export default class index extends Component {
 
     this.state = {
       login: true,
+      username: '',
+      password: ''
     }
 
     this.modeSwitch = this.modeSwitch.bind(this);
+    this.onChange   = this.onChange.bind(this);
   }
 
   modeSwitch(e) {
@@ -18,11 +21,26 @@ export default class index extends Component {
     this.setState({login: !this.state.login})
   }
 
+  onChange(e) {
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
+
   render() {
     const {login} = this.state;
 
     return login ? 
-      <Login modeSwitch={this.modeSwitch}/> : 
-      <Register modeSwitch={this.modeSwitch}/>
+      <Login 
+        onChange={this.onChange}  
+        modeSwitch={this.modeSwitch}
+        username={this.state.username} 
+        password={this.state.password}/> : 
+
+      <Register 
+        onChange={this.onChange} 
+        modeSwitch={this.modeSwitch}
+        username={this.state.username} 
+        password={this.state.password}/>
   }
 }
