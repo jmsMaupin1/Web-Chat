@@ -8,7 +8,8 @@ export default class index extends Component {
     this.state = {
       login: true,
       username: '',
-      password: ''
+      password: '',
+      email: ''
     }
 
     this.modeSwitch = this.modeSwitch.bind(this);
@@ -40,7 +41,8 @@ export default class index extends Component {
       <Register 
         onChange={this.onChange} 
         modeSwitch={this.modeSwitch}
-        username={this.state.username} 
+        username={this.state.username}
+        email={this.state.email} 
         password={this.state.password}/>
   }
 }

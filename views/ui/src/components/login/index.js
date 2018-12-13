@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { loginUser } from 'state/actions/login_actions';
+import { loginUser, registerUser } from 'state/actions/user';
 
 import React from 'react';
 import styled from 'styled-components';
@@ -75,6 +75,7 @@ const ModeSwitchButton = styled.button`
 
 
 const LoginComponent = props => {
+    console.log(props)
     return (
         <CardWrapper>
             <CardHeader>
@@ -85,7 +86,7 @@ const LoginComponent = props => {
             <CardBody>
                 <CardInput value={props.username} onChange={props.onChange} name='username' type='text' placeholder='Username'/>
                 <CardInput value={props.password} onChange={props.onChange} name='password' type='password' placeholder='password'/>
-                <CardButton onClick={() => props.loginUser(props.username, props.password)}>Log In</CardButton>
+                <CardButton onClick={props.loginUser.bind(this, props.username, props.password)}>Log In</CardButton>
                 <ModeSwitchButton onClick={props.modeSwitch}>Dont have an account?</ModeSwitchButton>
             </CardBody>
         </CardWrapper>
@@ -101,10 +102,10 @@ const RegisterComponent = props => {
             </CardHeader>
 
             <CardBody>
-                <CardInput name='username' type='text' placeholder='Username'/>
-                <CardInput name='password' type='password' placeholder='password'/>
-                <CardInput name='confirm-password' type='password' placeholder='confirm password'/>
-                <CardButton>Sign up</CardButton>
+                <CardInput value={props.username} onChange={props.onChange} name='username' type='text' placeholder='Username'/>
+                <CardInput value={props.email} onChange={props.onChange} name='email' type='text' placeholder='email'/>
+                <CardInput value={props.password} onChange={props.onChange} name='password' type='password' placeholder='password'/>
+                <CardButton onClick={props.registerUser.bind(this, props.username, props.email, props.password)}>Sign up</CardButton>
                 <ModeSwitchButton onClick={props.modeSwitch}>Already have an account?</ModeSwitchButton>
             </CardBody>
         </CardWrapper>
@@ -116,7 +117,7 @@ const mapLoginDispatchToProps = {
 }
 
 const mapRegisterDispatchToProps = {
-
+    registerUser,
 }
 
 export const Login = connect(null, mapLoginDispatchToProps)(LoginComponent);

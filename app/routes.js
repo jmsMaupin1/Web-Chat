@@ -19,7 +19,7 @@ module.exports = (app, passport) => {
         sendUser(req, res);
     })
 
-    app.post('/register', (req, res) => {
+    app.post('/register', passport.authenticate('local-signup'), (req, res) => {
         sendUser(req, res);
     })
 }

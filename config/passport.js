@@ -15,8 +15,7 @@ module.exports = (passport) => {
 
     // Local Sign up
     passport.use('local-signup', new LocalStrategy({
-        usernameField    : 'email',
-        passwordField    : 'password',
+        usernameField: 'email',
         passReqToCallback: true
     }, (req, email, password, done) => {
         process.nextTick( () => {
