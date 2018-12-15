@@ -1,4 +1,5 @@
 import { LOGIN_SUCCESS, LOGIN_FAILURE, REGISTER_SUCCESS, REGISTER_FAILURE, errorHandler } from 'state/actions';
+import { history } from 'helper/history';
 
 export const registerSuccess = user => ({type: REGISTER_SUCCESS, payload: user});
 export const registerFailure = error => ({type: REGISTER_FAILURE, payload: error});
@@ -18,13 +19,14 @@ export const registerUser = (username, email, password) => dispatch =>{
       })
       .then(errorHandler)
       .then(res => res.text())
-      .then(user => dispatch(registerSuccess(user)))
+      .then(user => {
+        dispatch(registerSuccess(user));
+        history.push('/chat');
+      })
       .catch(err => dispatch(registerFailure()));
 }
 
 export const loginUser = (user, password) => dispatch => {
-
-    console.log(user, password);
 
     fetch('/login', {
         method  : 'POST',
@@ -36,6 +38,9 @@ export const loginUser = (user, password) => dispatch => {
       })
       .then(errorHandler)
       .then(res => res.text())
-      .then(user => dispatch(loginSuccess(user)))
+      .then(user => {
+        dispatch(loginSuccess(user));
+        history.push('/chat');
+      })
       .catch(err => dispatch(loginFail()));
 }
