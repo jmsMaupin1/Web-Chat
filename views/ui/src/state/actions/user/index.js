@@ -1,1 +1,1 @@
-export * from './user_actions';
+export {loginUser, registerUser, getUserInfo} from './user_actions';

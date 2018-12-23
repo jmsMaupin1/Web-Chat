@@ -11,7 +11,7 @@ sendUser = (req,  res) => {
 }
 
 module.exports = (app, passport) => {
-    app.get('/users', (req, res) => {
+    app.get('/user', (req, res) => {
         sendUser(req, res);
     })
 

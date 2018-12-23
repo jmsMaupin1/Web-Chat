@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Auth from 'helper/protectedRoute';
-import { Chat } from './chat_component';
+import { Chat } from './chat';
 
 export default class index extends Component {
   render() {
