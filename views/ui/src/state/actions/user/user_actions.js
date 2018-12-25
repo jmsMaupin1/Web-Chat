@@ -20,12 +20,15 @@ export const getUserInfo = () => dispatch => {
     .then(errorHandler)
     .then(res => res.text())
     .then(user => {
-      console.log(user);
-      if(user) {
+      let userObj = JSON.parse(user);
+      let doesUserPropExist = userObj.hasOwnProperty('user');
+
+      if(!doesUserPropExist) {
         dispatch(loginSuccess(user))
         history.push('/chat');
       }
-    });
+    })
+    .catch(err => console.log(err));
 }
 
 export const registerUser = (username, email, password) => dispatch => {
