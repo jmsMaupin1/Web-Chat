@@ -3,31 +3,18 @@ import { connect } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 
-import BottomNav from 'components/bottom-navigation';
+import { BottomNav } from 'components/bottom-navigation';
+import { Sidebar } from 'components/sidebar';
 
 
-class chat_component extends Component {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      value: 0
-    };
-  }
-
-  handleChange = (event, value) => {
-    this.setState({ value });
-  }  
-  
+class chat_component extends Component {  
   render() {
-    const { value } = this.state;
     return (
       <div>
         <CssBaseline />
         <Grid container spacing={0}>
           <Grid item md={3}>
-            <div style={{height: '93vh', background: '#363E47'}}>
-            </div>
+            <Sidebar />
             <BottomNav />
           </Grid>
           <Grid item md={9}>
