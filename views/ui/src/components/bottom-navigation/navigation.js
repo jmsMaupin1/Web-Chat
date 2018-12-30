@@ -65,7 +65,7 @@ class bottom_navigation extends Component {
                     root: classes.actionItem,
                     selected: classes.selected
                 }}
-                label="Conversations" 
+                label="Rooms" 
                 icon={<UserIcon />} 
             />
             </BottomNavigation>

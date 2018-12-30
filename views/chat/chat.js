@@ -345,3 +345,8 @@ socket.on('request_join', data => {
     $("#request-join").show();
     
 })
+
+console.log(userTemplate({
+    username: 'jmsGears',
+    
+}))

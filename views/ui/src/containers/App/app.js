@@ -52,6 +52,7 @@ class App extends Component {
         email={this.state.email} 
         password={this.state.password}/>
   }
+
 }
 
 const mapLoginDispatchToProps = {
