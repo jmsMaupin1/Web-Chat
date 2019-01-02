@@ -8,6 +8,7 @@ const session      = require('express-session');
 // Import the rest of the tools
 const mongoose     = require('mongoose');
 const passport     = require('passport');
+const socket       = require('socket.io');
 
 // DB Config
 const dbPath       = require('./config/database').url;
@@ -37,6 +38,8 @@ require('./config/passport')(passport);
 
 require('./app/routes')(app, passport);
 
-app.listen(port, () => {
+let server = app.listen(port, () => {
     console.log(`Listening on ${port}`);
 })
+
+require('./app/event-handler')(server);

@@ -48,7 +48,8 @@ module.exports = app => {
             });
         })
 
-        socket.on('connect_user', data => {
+        socket.on('connect_user', dataString => {
+            let data = JSON.parse(dataString);
             data.socket_id = socket.id;
 
             User.updateUser(data._id, {

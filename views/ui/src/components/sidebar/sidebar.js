@@ -55,86 +55,21 @@ class sidebar extends Component {
             renderThumbVertical={this.renderThumb}
         >
             <List>
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 0)}
-                    selected={this.state.selectedIndex === 0}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 1)}
-                    selected={this.state.selectedIndex === 1}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 2)}
-                    selected={this.state.selectedIndex === 2}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 3)}
-                    selected={this.state.selectedIndex === 3}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 4)}
-                    selected={this.state.selectedIndex === 4}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 5)}
-                    selected={this.state.selectedIndex === 5}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 6)}
-                    selected={this.state.selectedIndex === 6}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 7)}
-                    selected={this.state.selectedIndex === 7}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
-
-                <ListItem
-                    handleClick={this.handleClick.bind(this, 8)}
-                    selected={this.state.selectedIndex === 8}
-                    altText="PersonsName"
-                    avatarSrc={AvatarPlaceHolder}
-                    name="Persons Name"
-                    subText="This is a snippet"
-                />
+                {
+                    this.props.participants.map((cur, index, arr) => {
+                        return (
+                            <ListItem
+                                key={arr[index]._id}
+                                handleClick={this.handleClick.bind(this, index)}
+                                selected={this.state.selectedIndex === index}
+                                altText={arr[index].username}
+                                avatarSrc={AvatarPlaceHolder}
+                                name={arr[index].username}
+                                subText="This is still a snippet"
+                            />
+                        )
+                    })
+                }
             </List>
         </CustomScrollbar>
         </div>
@@ -155,7 +90,9 @@ const Styles = theme => ({
 });
 
 const mapStateToProps = state => ({
-    
+    rooms        : state.serverReducer.rooms,
+    currentRoom  : state.serverReducer.currentRoom,
+    participants : state.serverReducer.participants
 })
 
 export const Sidebar = connect(mapStateToProps, null)(withStyles(Styles)(sidebar))

@@ -6,6 +6,7 @@ import {
   errorHandler 
 } from 'state/actions';
 
+import io from 'socket.io-client';
 import { history } from 'helper/history';
 
 const registerSuccess = user => ({type: REGISTER_SUCCESS, payload: user});
@@ -15,7 +16,6 @@ const loginSuccess  = user => ({ type: LOGIN_SUCCESS, payload: user });
 const loginFail     = () => ({ type: LOGIN_FAILURE });
 
 export const getUserInfo = () => dispatch => {
-  console.log('getting /user info')
   fetch('/user')
     .then(errorHandler)
     .then(res => res.text())
@@ -23,7 +23,7 @@ export const getUserInfo = () => dispatch => {
       let userObj = JSON.parse(user);
       let doesUserPropExist = userObj.hasOwnProperty('user');
 
-      if(!doesUserPropExist) {
+      if(!doesUserPropExist) { 
         dispatch(loginSuccess(user))
         history.push('/chat');
       }
