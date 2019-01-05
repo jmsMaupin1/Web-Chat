@@ -5,6 +5,8 @@ import { CustomScrollbar } from 'components/custom_scrollbar';
 import List from '@material-ui/core/List';
 
 import { ListItem } from 'components/menu_item';
+import { ROOMS } from 'state/actions/server';
+import { chooseRoom } from 'state/actions/sidebar';
 import AvatarPlaceHolder from 'assets/avatar-placeholder.png';
 
 class sidebar extends Component {
@@ -18,7 +20,6 @@ class sidebar extends Component {
   }
 
   handleScrollFrame = (values) => {
-    console.log(values)
     const { top } = values;
     this.setState({ top });
   }
@@ -35,20 +36,34 @@ class sidebar extends Component {
     );
 }
 
-  handleClick(e) {
-      this.setState({selectedIndex: e})
+  handleClick(index, payload) {
+      this.setState({selectedIndex: index});
+
+      if (this.props.view === ROOMS)
+        this.props.chooseRoom(payload);
   }
 
   createSnippet(str) {
       return str.substr(str, 35) + "...";
   }
 
+  generateList(view, props) {
+      if(view === ROOMS)
+        return Object.keys(props.rooms);
+      else
+        return props.participants;
+  }
+
   render() {
+    const sidebarList = this.generateList(
+        this.props.view,
+        this.props
+    )
     return (
         <div style={{
-                height: '93vh', 
-                background: '#363E47', 
-                overflowY: 'hidden'
+            height: '93vh', 
+            background: '#363E47', 
+            overflowY: 'hidden'
         }}>
         <CustomScrollbar autoHide
             onScrollFrame={this.handleScrollFrame}
@@ -56,16 +71,19 @@ class sidebar extends Component {
         >
             <List>
                 {
-                    this.props.participants.map((cur, index, arr) => {
+                    sidebarList.map( (cur, index, arr) => {
+                        let name = this.props.view === ROOMS ? cur : cur.username;
+                        let payload = this.props.view === ROOMS ? this.props.rooms[cur] : cur;
+
                         return (
-                            <ListItem
-                                key={arr[index]._id}
-                                handleClick={this.handleClick.bind(this, index)}
-                                selected={this.state.selectedIndex === index}
-                                altText={arr[index].username}
+                            <ListItem 
+                                key={index}
+                                handleClick={this.handleClick.bind(this, index, payload)}
+                                selectedIndex={this.state.selectedIndex === index}
+                                altText={name}
+                                name={name}
                                 avatarSrc={AvatarPlaceHolder}
-                                name={arr[index].username}
-                                subText="This is still a snippet"
+                                subText="subtext"
                             />
                         )
                     })
@@ -90,9 +108,14 @@ const Styles = theme => ({
 });
 
 const mapStateToProps = state => ({
-    rooms        : state.serverReducer.rooms,
-    currentRoom  : state.serverReducer.currentRoom,
-    participants : state.serverReducer.participants
+    view : state.sidebarReducer.view,
+    rooms : state.serverReducer.rooms,
+    currentRoom : state.sidebarReducer.currentRoom,
+    participants : state.sidebarReducer.participants
 })
 
-export const Sidebar = connect(mapStateToProps, null)(withStyles(Styles)(sidebar))
+const mapDispatchToPropps = {
+    chooseRoom: chooseRoom
+};
+
+export const Sidebar = connect(mapStateToProps, mapDispatchToPropps)(withStyles(Styles)(sidebar))

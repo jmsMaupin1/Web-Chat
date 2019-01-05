@@ -5,6 +5,8 @@ import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import MessageIcon from '@material-ui/icons/Message';
 import UserIcon from '@material-ui/icons/AccountCircle';
+import { connect } from 'react-redux';
+import { PEOPLE, ROOMS, chooseSidebarView } from 'state/actions/sidebar';
 
 const Style = {
     root: {
@@ -50,28 +52,36 @@ class bottom_navigation extends Component {
               onChange={this.handleChange}
               className={classes.root}   
             >
-    
-            <BottomNavigationAction 
-                classes={{
-                    root: classes.actionItem,
-                    selected: classes.selected
-                }} 
-                label="Messages" 
-                icon={<MessageIcon />} 
-            />
 
             <BottomNavigationAction
                 classes={{
                     root: classes.actionItem,
                     selected: classes.selected
                 }}
+                onClick={this.props.chooseRooms}
                 label="Rooms" 
                 icon={<UserIcon />} 
             />
+    
+            <BottomNavigationAction 
+                classes={{
+                    root: classes.actionItem,
+                    selected: classes.selected
+                }}
+                onClick={this.props.chooseMessages}
+                label="People" 
+                icon={<MessageIcon />} 
+            />
+
             </BottomNavigation>
           </div>
         )
       }
 }
 
-export const BottomNav = withStyles(Style)(bottom_navigation);
+const mapDispatchToProps = {
+    chooseMessages: () => chooseSidebarView(PEOPLE),
+    chooseRooms   : () => chooseSidebarView(ROOMS),
+}
+
+export const BottomNav = connect(null, mapDispatchToProps)(withStyles(Style)(bottom_navigation));

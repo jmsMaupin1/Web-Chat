@@ -14,9 +14,8 @@ class menu_item extends Component {
 
   render() {
     const { classes } = this.props;
-
     return (
-      <MenuItem selected={this.props.selected} onClick={()=>this.props.handleClick()} classes={{
+      <MenuItem selected={this.props.selectedIndex} onClick={()=>this.props.handleClick()} classes={{
           root: classes.root,
           selected: classes.selected
       }}>

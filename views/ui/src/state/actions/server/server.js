@@ -18,6 +18,6 @@ export const init = store => {
 
 export const emit = (type, payload) => socket.emit(type, payload);
 
-export const connectUser = (user) => {
+export const connectUser = user => {
     emit('connect_user', user);
 }
