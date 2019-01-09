@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import userReducer from 'state/reducers/user';
-import serverReducer from 'state/reducers/server';
-import sidebarReducer from 'state/reducers/sidebar';
+import user from 'state/reducers/user';
+import sidebar from 'state/reducers/sidebar';
+import chat from 'state/reducers/chat';
 
-export default combineReducers({ userReducer, serverReducer, sidebarReducer });
+export default combineReducers({ user, sidebar, chat });

@@ -13,7 +13,7 @@ const Style = {
         position: 'fixed',
         bottom: '0',
         width: '25vw',
-        height: '7vh',
+        height: '10vh',
         background: '#303841',
         color: 'black'
     },

@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 
 import { BottomNav } from 'components/bottom-navigation';
 import { Sidebar } from 'components/sidebar';
+import  ChatWindow  from 'components/chat-window';
 
 import { connectUser } from 'state/actions/server';
 
@@ -24,7 +25,7 @@ class chat_component extends Component {
             <BottomNav />
           </Grid>
           <Grid item md={9}>
-            {/* <ChatWindow /> */}
+            <ChatWindow />
           </Grid>
         </Grid>
       </div>
@@ -34,6 +35,6 @@ class chat_component extends Component {
 
 export const Chat = connect(state => (
   {
-    user: state.userReducer.user
+    user: state.user.user
   })
 )(chat_component);  

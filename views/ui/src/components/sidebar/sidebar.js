@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core';
 import { connect } from 'react-redux';
-import { CustomScrollbar } from 'components/custom_scrollbar';
+import { CustomScrollbar } from 'components/custom-scrollbar';
 import List from '@material-ui/core/List';
 
-import { ListItem } from 'components/menu_item';
-import { ROOMS } from 'state/actions/server';
+import { ListItem } from 'components/menu-item';
+import { ROOMS, getMessageHistory, sendMessage } from 'state/actions/server';
 import { chooseRoom } from 'state/actions/sidebar';
 import AvatarPlaceHolder from 'assets/avatar-placeholder.png';
 
@@ -39,8 +39,10 @@ class sidebar extends Component {
   handleClick(index, payload) {
       this.setState({selectedIndex: index});
 
-      if (this.props.view === ROOMS)
-        this.props.chooseRoom(payload);
+      if (this.props.view === ROOMS) {
+          this.props.chooseRoom(payload);
+          getMessageHistory(payload);
+      }
   }
 
   createSnippet(str) {
@@ -52,7 +54,7 @@ class sidebar extends Component {
         return Object.keys(props.rooms);
       else
         return props.participants;
-  }
+  }  
 
   render() {
     const sidebarList = this.generateList(
@@ -61,7 +63,7 @@ class sidebar extends Component {
     )
     return (
         <div style={{
-            height: '93vh', 
+            height: '90vh', 
             background: '#363E47', 
             overflowY: 'hidden'
         }}>
@@ -71,7 +73,7 @@ class sidebar extends Component {
         >
             <List>
                 {
-                    sidebarList.map( (cur, index, arr) => {
+                    sidebarList ? sidebarList.map( (cur, index, arr) => {
                         let name = this.props.view === ROOMS ? cur : cur.username;
                         let payload = this.props.view === ROOMS ? this.props.rooms[cur] : cur;
 
@@ -86,7 +88,8 @@ class sidebar extends Component {
                                 subText="subtext"
                             />
                         )
-                    })
+                    }) 
+                    :<></>
                 }
             </List>
         </CustomScrollbar>
@@ -108,14 +111,15 @@ const Styles = theme => ({
 });
 
 const mapStateToProps = state => ({
-    view : state.sidebarReducer.view,
-    rooms : state.serverReducer.rooms,
-    currentRoom : state.sidebarReducer.currentRoom,
-    participants : state.sidebarReducer.participants
+    user : state.user.user,
+    view : state.sidebar.view,
+    rooms : state.sidebar.rooms,
+    currentRoom : state.sidebar.currentRoom,
+    participants : state.sidebar.currentRoom.participants
 })
 
 const mapDispatchToPropps = {
-    chooseRoom: chooseRoom
+    chooseRoom: chooseRoom,
 };
 
 export const Sidebar = connect(mapStateToProps, mapDispatchToPropps)(withStyles(Styles)(sidebar))

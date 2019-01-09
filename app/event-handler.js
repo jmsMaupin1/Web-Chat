@@ -113,7 +113,7 @@ module.exports = app => {
             new Message({
                 created: Date.now(),
                 message: data.message,
-                user   : data.user._id,
+                user   : JSON.parse(data.user)._id,
                 room   : data.room
             }).save((err, m) => {
                 if (err) throw err;
