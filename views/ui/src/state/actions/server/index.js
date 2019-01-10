@@ -10,6 +10,7 @@ const ROOM_JOINED  = 'ROOM_JOINED';
 const USERS        = 'USERS';
 const MESSAGES     = 'MESSAGES';
 const CHAT_HISTORY = 'CHAT_HISTORY';
+const CHAT         = 'CHAT';
 const ROOMS        = 'ROOMS';
 const PEOPLE       = 'PEOPLE';
 
@@ -23,6 +24,7 @@ export {
     USERS,
     MESSAGES,
     CHAT_HISTORY,
+    CHAT,
     ROOMS,
     PEOPLE
 }

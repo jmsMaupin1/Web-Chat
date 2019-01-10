@@ -5,7 +5,7 @@ import { CustomScrollbar } from 'components/custom-scrollbar';
 import List from '@material-ui/core/List';
 
 import { ListItem } from 'components/menu-item';
-import { ROOMS, getMessageHistory, sendMessage } from 'state/actions/server';
+import { ROOMS, getMessageHistory } from 'state/actions/server';
 import { chooseRoom } from 'state/actions/sidebar';
 import AvatarPlaceHolder from 'assets/avatar-placeholder.png';
 
