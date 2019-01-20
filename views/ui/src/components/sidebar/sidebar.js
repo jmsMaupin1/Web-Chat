@@ -76,7 +76,9 @@ class sidebar extends Component {
                     sidebarList ? sidebarList.map( (cur, index, arr) => {
                         let name = this.props.view === ROOMS ? cur : cur.username;
                         let payload = this.props.view === ROOMS ? this.props.rooms[cur] : cur;
+                        let subText = this.props.view === ROOMS ? this.props.rooms[cur].lastMessage.message : '';
 
+                        console.log(this.props.view === ROOMS ? this.props.rooms[cur].lastMessage : '')
                         return (
                             <ListItem 
                                 key={index}
@@ -85,7 +87,7 @@ class sidebar extends Component {
                                 altText={name}
                                 name={name}
                                 avatarSrc={AvatarPlaceHolder}
-                                subText="subtext"
+                                subText={subText}
                             />
                         )
                     }) 

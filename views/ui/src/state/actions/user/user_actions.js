@@ -6,7 +6,6 @@ import {
   errorHandler 
 } from 'state/actions';
 
-import io from 'socket.io-client';
 import { history } from 'helper/history';
 
 const registerSuccess = user => ({type: REGISTER_SUCCESS, payload: user});

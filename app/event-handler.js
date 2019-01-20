@@ -3,17 +3,32 @@ const Message = require('./models/message');
 const Room    = require('./models/room');
 const User    = require('./models/user');
 
-const connectedUsers = [];
-
 // Helper functions
+// let joinRoom = function(roomId, user, io) {
+//     Room.join(roomId, user, (err, room) => {
+//         if (err) throw err;
+
+//         io.to(user.socket_id).emit('room_joined', room);
+
+//         room.participants.forEach( p => {
+//             io.to(p.socket_id).emit('users', room);
+//         })
+//     })
+// }
+
 let joinRoom = function(roomId, user, io) {
     Room.join(roomId, user, (err, room) => {
-        if (err) throw err;
+        Message.getMessagesInRoom(room, (err, messages) => {
+            if (err) throw err;
 
-        io.to(user.socket_id).emit('room_joined', room);
+            io.to(user.socket_id).emit('room_joined', {
+                room: room,
+                messages: messages
+            })
 
-        room.participants.forEach( p => {
-            io.to(p.socket_id).emit('users', room);
+            room.participants.forEach( p => {
+                io.to(p.socket_id).emit('users', room);
+            })
         })
     })
 }
@@ -127,6 +142,7 @@ module.exports = app => {
         });
 
         socket.on('get_rooms', data => {
+            console.log('get_rooms', data)
             let rooms = {};
             Room.getJoinableRooms(data, (err, room) => {
                 if (err) throw err;

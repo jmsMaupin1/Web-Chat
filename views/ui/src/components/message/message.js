@@ -4,17 +4,6 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import AvatarPlaceHolder from 'assets/avatar-placeholder.png';
 
-const ChatContainer = Styled.div`
-    display: grid;
-    height: 100vh;
-    grid-template-rows: 90fr 10fr;
-`;
-
-const ChatBox = Styled.textarea`
-    display: block;
-    border-top: 1px solid black;
-`;
-
 const AvatarContainer = Styled.div`
     display: flex;
     align-items: center;
