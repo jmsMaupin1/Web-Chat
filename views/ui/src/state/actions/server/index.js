@@ -3,7 +3,8 @@ import {
     emit,
     connectUser,
     getMessageHistory,
-    sendMessage
+    sendMessage,
+    privateMessage
 } from './server';
 
 const ROOM_JOINED  = 'ROOM_JOINED';
@@ -20,6 +21,7 @@ export {
     connectUser,
     getMessageHistory,
     sendMessage,
+    privateMessage,
     ROOM_JOINED,
     USERS,
     MESSAGES,

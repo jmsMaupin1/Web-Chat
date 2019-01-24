@@ -3,21 +3,10 @@ const Message = require('./models/message');
 const Room    = require('./models/room');
 const User    = require('./models/user');
 
-// Helper functions
-// let joinRoom = function(roomId, user, io) {
-//     Room.join(roomId, user, (err, room) => {
-//         if (err) throw err;
-
-//         io.to(user.socket_id).emit('room_joined', room);
-
-//         room.participants.forEach( p => {
-//             io.to(p.socket_id).emit('users', room);
-//         })
-//     })
-// }
-
-let joinRoom = function(roomId, user, io) {
+let joinRoom = function(roomId, user, io, log) {
     Room.join(roomId, user, (err, room) => {
+        if (err) throw err;
+
         Message.getMessagesInRoom(room, (err, messages) => {
             if (err) throw err;
 
@@ -30,7 +19,7 @@ let joinRoom = function(roomId, user, io) {
                 io.to(p.socket_id).emit('users', room);
             })
         })
-    })
+    }, log)
 }
 
 module.exports = app => {
@@ -105,8 +94,8 @@ module.exports = app => {
                 if (rooms.length === 0)
                     Room.createRoom('', false, (err, room) => {
                         if (err) throw err;
-                        joinRoom(room._id, data.from, io);
-                        joinRoom(room._id, data.to, io);
+                        joinRoom(room._id, data.from, io, true);
+                        // joinRoom(room._id, data.to, io);
                     })
                 else {
                     rooms.forEach( room => {
@@ -142,7 +131,6 @@ module.exports = app => {
         });
 
         socket.on('get_rooms', data => {
-            console.log('get_rooms', data)
             let rooms = {};
             Room.getJoinableRooms(data, (err, room) => {
                 if (err) throw err;

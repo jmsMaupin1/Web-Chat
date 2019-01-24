@@ -3,7 +3,45 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
+import Styled from 'styled-components';
 import { withStyles, Typography } from '@material-ui/core';
+
+import MessageIcon from '@material-ui/icons/Message';
+import UserIcon from '@material-ui/icons/AccountCircle';
+
+const Menu = Styled.div`
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    visibility: ${props => props.hovering ? 'visible' : 'hidden'};
+    background: ${props => {
+        // 2E353D - hovering and selected
+        // 323941 - hovering and not selected
+        // 404953 - not hovering and selected
+        // 363E47 - not hovering and not selected
+        let { hovering, selected } = props;
+
+        if (hovering && selected)
+            return '#2E353D'
+        else if (hovering && !selected)
+            return '#323941'
+        else if (selected)
+            return '#404953'
+
+        return '#363E47';
+    }};
+
+    width: ${props => {
+            return props.hovering ? '85%' : '0%'
+        }
+    };
+
+    height: 100%;
+    transition: all ease-in-out .5s;
+    
+`;
 
 class menu_item extends Component {
   createSnippet(str, length) {
@@ -15,7 +53,7 @@ class menu_item extends Component {
   render() {
     const { classes } = this.props;
     return (
-      <MenuItem selected={this.props.selectedIndex} onClick={()=>this.props.handleClick()} classes={{
+      <MenuItem onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave} selected={this.props.selectedIndex} onClick={()=>this.props.handleClick()} classes={{
           root: classes.root,
           selected: classes.selected
       }}>
@@ -25,6 +63,10 @@ class menu_item extends Component {
                 src={this.props.avatarSrc}
             />
         </ListItemAvatar>
+        <Menu hovering={this.props.hovering} selected={this.props.selectedIndex}>
+            <div onClick={this.props.privateMessage}><MessageIcon></MessageIcon></div>
+            <div onClick={()=>console.log('clicked menu item 2')}><UserIcon></UserIcon></div>
+        </Menu>
         <ListItemText 
             primary = {
                 <Typography style={{ color: 'white'}}>

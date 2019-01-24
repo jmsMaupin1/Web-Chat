@@ -5,7 +5,7 @@ import { CustomScrollbar } from 'components/custom-scrollbar';
 import List from '@material-ui/core/List';
 
 import { ListItem } from 'components/menu-item';
-import { ROOMS, getMessageHistory } from 'state/actions/server';
+import { ROOMS, PEOPLE, getMessageHistory, privateMessage } from 'state/actions/server';
 import { chooseRoom } from 'state/actions/sidebar';
 import AvatarPlaceHolder from 'assets/avatar-placeholder.png';
 
@@ -15,6 +15,7 @@ class sidebar extends Component {
 
       this.state = {
           selectedIndex: -1,
+          hoverIndex: -1,
           top: 0,
       }
   }
@@ -34,7 +35,7 @@ class sidebar extends Component {
             {...props}
         />
     );
-}
+   }
 
   handleClick(index, payload) {
       this.setState({selectedIndex: index});
@@ -42,7 +43,21 @@ class sidebar extends Component {
       if (this.props.view === ROOMS) {
           this.props.chooseRoom(payload);
           getMessageHistory(payload);
+      } else if (this.props.view === PEOPLE) {
+        // show options for private messaging user (and admin options i.e. kick)
       }
+  }
+
+  onHover(index) {
+      this.setState({hoverIndex: index});
+  }
+
+  leaveHover() {
+      this.setState({hoverIndex: -1});
+  }
+
+  sendPM(to,from) {
+      privateMessage(to, from);
   }
 
   createSnippet(str) {
@@ -61,6 +76,8 @@ class sidebar extends Component {
         this.props.view,
         this.props
     )
+
+    const { user } = this.props;
     return (
         <div style={{
             height: '90vh', 
@@ -76,11 +93,16 @@ class sidebar extends Component {
                     sidebarList ? sidebarList.map( (cur, index, arr) => {
                         let name = this.props.view === ROOMS ? cur : cur.username;
                         let payload = this.props.view === ROOMS ? this.props.rooms[cur] : cur;
-                        let subText = this.props.view === ROOMS ? this.props.rooms[cur].lastMessage.message : '';
+                        let subText = this.props.view === ROOMS && this.props.rooms[cur].lastMessage? this.props.rooms[cur].lastMessage.message : '';
+                        let hovering = this.props.view === PEOPLE ? this.state.hoverIndex === index : false;
+                        let pm = this.props.view === PEOPLE ? this.sendPM.bind(this, cur, user) : null;
 
-                        console.log(this.props.view === ROOMS ? this.props.rooms[cur].lastMessage : '')
                         return (
                             <ListItem 
+                                onMouseEnter={this.onHover.bind(this, index)}
+                                onMouseLeave={this.leaveHover.bind(this)}
+                                hovering={hovering}
+                                privateMessage={pm}
                                 key={index}
                                 handleClick={this.handleClick.bind(this, index, payload)}
                                 selectedIndex={this.state.selectedIndex === index}
@@ -113,7 +135,7 @@ const Styles = theme => ({
 });
 
 const mapStateToProps = state => ({
-    user : state.user.user,
+    user : JSON.parse(state.user.user),
     view : state.sidebar.view,
     rooms : state.sidebar.rooms,
     currentRoom : state.sidebar.currentRoom,

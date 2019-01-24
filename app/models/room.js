@@ -3,9 +3,10 @@ const Schema   = mongoose.Schema;
 
 // Helper functions
 let containsDoc = function(obj, list) {
-    for(let i = 0; i < list.length; ++i) 
+    for(let i = 0; i < list.length; ++i) {
         if (list[i]._id.toString() === obj._id.toString())
             return i;
+    }
 
     return false;
 }
@@ -35,8 +36,8 @@ RoomSchema.statics.createRoom = function(roomName, isPublic, cb, user) {
         let newRoom = new this();
         newRoom.name = roomName;
         newRoom.public = isPublic;
-        newRoom.participants = [user];
-        newRoom.admins = [user];
+        newRoom.participants = user ? [user] : [];
+        newRoom.admins = user ? [user] : [];
         newRoom.save(cb);
     }
 }
@@ -58,7 +59,7 @@ RoomSchema.statics.isAdmin = function(roomId, admin, cb) {
         })
 }
 
-RoomSchema.statics.join = function(roomId, user, cb) {
+RoomSchema.statics.join = function(roomId, user, cb, log = false) {
     if (!user) {
         cb('user is null');
         return;
@@ -71,6 +72,8 @@ RoomSchema.statics.join = function(roomId, user, cb) {
             if (err) cb(err);
             else if (rooms.length > 0) {
                 let room = rooms[0];
+
+                if (log) console.log(room);
 
                 if (room.participants.length === 0)
                     room.participants.push(user._id);

@@ -29,3 +29,8 @@ export const sendMessage = (room, message, user) => emit('chat', {
     message,
     user
 })
+
+export const privateMessage = (to, from) => emit('private_room', {
+    to: to,
+    from: from
+})
