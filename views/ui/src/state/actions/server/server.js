@@ -13,6 +13,7 @@ export const init = store => {
     messageTypes.forEach( t => 
         socket.on(t, payload => {
             let type = t.toUpperCase();
+            console.log(type, payload)
             store.dispatch({type, payload})
         })
     );

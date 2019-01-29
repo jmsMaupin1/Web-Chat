@@ -44,6 +44,11 @@ const Menu = Styled.div`
 `;
 
 class menu_item extends Component {
+
+  constructor(props) {
+      super(props);
+      this.state = {};
+  }
   createSnippet(str, length) {
       if(str.length <= length)
         return str;

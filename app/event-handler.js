@@ -10,6 +10,18 @@ let joinRoom = function(roomId, user, io, log) {
         Message.getMessagesInRoom(room, (err, messages) => {
             if (err) throw err;
 
+            if (room.name === '') {
+                let obj = room.participants.filter( participant => {
+                    return participant._id.toString() !== user._id.toString();
+                });
+
+                let keys = Object.keys(obj);
+
+                for (key in keys) {
+                    room.name = obj[key].username;
+                }
+            }
+
             io.to(user.socket_id).emit('room_joined', {
                 room: room,
                 messages: messages
@@ -95,7 +107,7 @@ module.exports = app => {
                     Room.createRoom('', false, (err, room) => {
                         if (err) throw err;
                         joinRoom(room._id, data.from, io, true);
-                        // joinRoom(room._id, data.to, io);
+                        joinRoom(room._id, data.to, io);
                     })
                 else {
                     rooms.forEach( room => {

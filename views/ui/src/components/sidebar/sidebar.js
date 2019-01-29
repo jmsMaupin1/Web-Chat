@@ -43,9 +43,31 @@ class sidebar extends Component {
       if (this.props.view === ROOMS) {
           this.props.chooseRoom(payload);
           getMessageHistory(payload);
-      } else if (this.props.view === PEOPLE) {
-        // show options for private messaging user (and admin options i.e. kick)
       }
+  }
+
+  configureMenuItem(cur, index) {
+    const { user } = this.props;
+    const isViewRoom = this.props.view === ROOMS;
+    let name = '';
+
+    if(isViewRoom) {
+        if (cur === '')
+            name = this.props.rooms[cur].participants.filter((participant, index, arr) => {
+                return participant._id !== this.props.user._id;
+            }).username;
+        else 
+            name = cur;
+            
+    } else name = cur.username;
+
+    return {
+        name: name,
+        payload: isViewRoom  ? this.props.rooms[cur] : cur,
+        subText: isViewRoom && this.props.rooms[cur].lastMessage ? this.props.rooms[cur].lastMessage.message : '',
+        hovering: !isViewRoom && this.state.hoverIndex === index,
+        pm: !isViewRoom ? this.sendPM.bind(this, cur, user) : null
+    }
   }
 
   onHover(index) {
@@ -77,7 +99,6 @@ class sidebar extends Component {
         this.props
     )
 
-    const { user } = this.props;
     return (
         <div style={{
             height: '90vh', 
@@ -91,25 +112,22 @@ class sidebar extends Component {
             <List>
                 {
                     sidebarList ? sidebarList.map( (cur, index, arr) => {
-                        let name = this.props.view === ROOMS ? cur : cur.username;
-                        let payload = this.props.view === ROOMS ? this.props.rooms[cur] : cur;
-                        let subText = this.props.view === ROOMS && this.props.rooms[cur].lastMessage? this.props.rooms[cur].lastMessage.message : '';
-                        let hovering = this.props.view === PEOPLE ? this.state.hoverIndex === index : false;
-                        let pm = this.props.view === PEOPLE ? this.sendPM.bind(this, cur, user) : null;
+                        let config = this.configureMenuItem(cur, index);
 
                         return (
                             <ListItem 
                                 onMouseEnter={this.onHover.bind(this, index)}
                                 onMouseLeave={this.leaveHover.bind(this)}
-                                hovering={hovering}
-                                privateMessage={pm}
+                                hovering={config.hovering}
+                                privateMessage={config.pm}
+                                userRole={'ADMIN'}
                                 key={index}
-                                handleClick={this.handleClick.bind(this, index, payload)}
+                                handleClick={this.handleClick.bind(this, index, config.payload)}
                                 selectedIndex={this.state.selectedIndex === index}
-                                altText={name}
-                                name={name}
+                                altText={config.name}
+                                name={config.name}
                                 avatarSrc={AvatarPlaceHolder}
-                                subText={subText}
+                                subText={config.subText}
                             />
                         )
                     }) 

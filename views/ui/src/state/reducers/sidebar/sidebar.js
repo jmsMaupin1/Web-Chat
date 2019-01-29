@@ -51,7 +51,7 @@ export default (state = initialState, { type, payload }) => {
       rooms: Object.assign({}, state.rooms, {
         [payload.name]: {
           ...payload,
-          lastMessage: state.rooms[payload.name].lastMessage
+          lastMessage: state.rooms[payload.name].lastMessage || ''  
         }
       })
     })

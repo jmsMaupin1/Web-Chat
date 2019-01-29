@@ -60,7 +60,7 @@ class bottom_navigation extends Component {
                 }}
                 onClick={this.props.chooseRooms}
                 label="Rooms" 
-                icon={<UserIcon />} 
+                icon={<MessageIcon />} 
             />
     
             <BottomNavigationAction 
@@ -70,7 +70,7 @@ class bottom_navigation extends Component {
                 }}
                 onClick={this.props.chooseMessages}
                 label="People" 
-                icon={<MessageIcon />} 
+                icon={<UserIcon />} 
             />
 
             </BottomNavigation>
