@@ -39,12 +39,6 @@ let notifyParticipantsUserJoined = function(room, user, io) {
             return participant._id.toString() === user._id.toString();
         })
 
-        console.log('=========================')
-        console.log(participantsNotUser);
-        console.log('-------------------------')
-        console.log(user);
-        console.log('=========================')
-
         if(participantsNotUser.length === 1 && room.name === '')
             room.name = participantsNotUser[0].username;
             
