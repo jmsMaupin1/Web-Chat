@@ -47,11 +47,12 @@ export default (state = initialState, { type, payload }) => {
     })
 
   case USERS:
+    const room = state.rooms[payload.name];
     return Object.assign({}, state, {
       rooms: Object.assign({}, state.rooms, {
         [payload.name]: {
           ...payload,
-          lastMessage: state.rooms[payload.name].lastMessage || ''  
+          lastMessage: room ? room.lastMessage : ''  
         }
       })
     })

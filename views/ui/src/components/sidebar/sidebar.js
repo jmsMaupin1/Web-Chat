@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
-import { withStyles } from '@material-ui/core';
+import { withStyles, ListItemAvatar, MenuItem } from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
+import List from '@material-ui/core/List';
 import { connect } from 'react-redux';
 import { CustomScrollbar } from 'components/custom-scrollbar';
-import List from '@material-ui/core/List';
 
 import { ListItem } from 'components/menu-item';
-import { ROOMS, PEOPLE, getMessageHistory, privateMessage } from 'state/actions/server';
+import { ROOMS, getMessageHistory, privateMessage } from 'state/actions/server';
 import { chooseRoom } from 'state/actions/sidebar';
 import AvatarPlaceHolder from 'assets/avatar-placeholder.png';
+import AddRoomIcon from 'assets/add-room.png';
 
 class sidebar extends Component {
   constructor(props) {
@@ -49,22 +51,23 @@ class sidebar extends Component {
   configureMenuItem(cur, index) {
     const { user } = this.props;
     const isViewRoom = this.props.view === ROOMS;
-    let name = '';
-
-    if(isViewRoom) {
-        if (cur === '')
-            name = this.props.rooms[cur].participants.filter((participant, index, arr) => {
-                return participant._id !== this.props.user._id;
-            }).username;
-        else 
-            name = cur;
-            
-    } else name = cur.username;
+    
+    const name = isViewRoom ? cur : cur.username;
+    const subText = isViewRoom && this.props.rooms[cur].lastMessage ? this.props.rooms[cur].lastMessage.message : '';
+    const avatar = (
+        <ListItemAvatar>
+            <Avatar 
+                alt={name} 
+                src={AvatarPlaceHolder}
+            />
+        </ListItemAvatar>
+    )
 
     return {
         name: name,
-        payload: isViewRoom  ? this.props.rooms[cur] : cur,
-        subText: isViewRoom && this.props.rooms[cur].lastMessage ? this.props.rooms[cur].lastMessage.message : '',
+        avatar: avatar,
+        subText: subText,
+        payload: isViewRoom ? this.props.rooms[cur] : cur,
         hovering: !isViewRoom && this.state.hoverIndex === index,
         pm: !isViewRoom ? this.sendPM.bind(this, cur, user) : null
     }
@@ -124,15 +127,27 @@ class sidebar extends Component {
                                 key={index}
                                 handleClick={this.handleClick.bind(this, index, config.payload)}
                                 selectedIndex={this.state.selectedIndex === index}
-                                altText={config.name}
                                 name={config.name}
                                 avatarSrc={AvatarPlaceHolder}
                                 subText={config.subText}
+                                avatar={config.avatar}
                             />
                         )
                     }) 
                     :<></>
                 }
+                <ListItem 
+                    handleClick={() => console.log('Add Room Button Clicked')}
+                    name={'Create New Room'}
+                    subText={''}
+                    avatar={
+                        <ListItemAvatar>
+                            <Avatar
+                                alt={'create new room'}
+                                src={AddRoomIcon}
+                            />
+                        </ListItemAvatar>}
+                />
             </List>
         </CustomScrollbar>
         </div>

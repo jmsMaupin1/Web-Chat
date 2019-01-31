@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
 import Styled from 'styled-components';
 import { withStyles, Typography } from '@material-ui/core';
 
@@ -17,10 +15,6 @@ const Menu = Styled.div`
     right: 0;
     visibility: ${props => props.hovering ? 'visible' : 'hidden'};
     background: ${props => {
-        // 2E353D - hovering and selected
-        // 323941 - hovering and not selected
-        // 404953 - not hovering and selected
-        // 363E47 - not hovering and not selected
         let { hovering, selected } = props;
 
         if (hovering && selected)
@@ -62,12 +56,7 @@ class menu_item extends Component {
           root: classes.root,
           selected: classes.selected
       }}>
-        <ListItemAvatar>
-            <Avatar 
-                alt={this.props.altText} 
-                src={this.props.avatarSrc}
-            />
-        </ListItemAvatar>
+        {this.props.avatar}
         <Menu hovering={this.props.hovering} selected={this.props.selectedIndex}>
             <div onClick={this.props.privateMessage}><MessageIcon></MessageIcon></div>
             <div onClick={()=>console.log('clicked menu item 2')}><UserIcon></UserIcon></div>

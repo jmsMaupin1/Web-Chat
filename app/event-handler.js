@@ -27,11 +27,30 @@ let joinRoom = function(roomId, user, io, log) {
                 messages: messages
             })
 
-            room.participants.forEach( p => {
-                io.to(p.socket_id).emit('users', room);
-            })
+            notifyParticipantsUserJoined(room, user, io);
         })
     }, log)
+}
+
+let notifyParticipantsUserJoined = function(room, user, io) {
+        let { participants } = room;
+        
+        let participantsNotUser = participants.filter( participant => {
+            return participant._id.toString() === user._id.toString();
+        })
+
+        console.log('=========================')
+        console.log(participantsNotUser);
+        console.log('-------------------------')
+        console.log(user);
+        console.log('=========================')
+
+        if(participantsNotUser.length === 1 && room.name === '')
+            room.name = participantsNotUser[0].username;
+            
+        participantsNotUser.forEach( p => {
+            io.to(p.socket_id).emit('users', room);
+        })
 }
 
 module.exports = app => {
@@ -54,9 +73,7 @@ module.exports = app => {
                             Room.populate(room, {path: 'participants', model: 'User', select: 'username online socket_id'}, (err, room) => {
                                 if (err) throw err;
 
-                                room.participants.forEach( p => {
-                                    io.to(p.socket_id).emit('users', room);
-                                })                                
+                                notifyParticipantsUserJoined(room, user, io);                               
                             })
                         })
                     })
@@ -111,6 +128,14 @@ module.exports = app => {
                     })
                 else {
                     rooms.forEach( room => {
+                        Message.getMessagesInRoom(room._id, (err, messages) => {
+                            if (err) throw err;
+
+                            io.to(socket.id).emit('room_joined', {
+                                room: room,
+                                messages: messages
+                            })
+                        })
                         io.to(socket.id).emit('room_joined', room);
                     })
                 }
